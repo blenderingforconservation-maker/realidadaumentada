@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F4EFE7">
+  <meta name="description" content="Menú gastronómico interactivo con modelos 3D y realidad aumentada.">
+  <title>Casa Mezquite | Menú 3D + AR</title>
+
+  <!-- ===================================================== -->
+  <!-- NO EDITAR: SOPORTE PARA MODELOS GLB + MESHOPT        -->
+  <!-- ===================================================== -->
+  <script>
+    self.ModelViewerElement = self.ModelViewerElement || {};
+    self.ModelViewerElement.meshoptDecoderLocation =
+      "https://cdn.jsdelivr.net/npm/meshoptimizer/meshopt_decoder.js";
+  </script>
+
+  <script
+    type="module"
+    src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.3.1/model-viewer.min.js">
+  </script>
+
+  <style>
+    :root{
+      --fondo:#F5F0E8;
+      --fondo-profundo:#E9DFD2;
+      --tarjeta:#FFFDF9;
+      --texto:#241F1A;
+      --texto-suave:#756A60;
+      --acento:#A64F31;
+      --acento-oscuro:#6C2F1C;
+      --olivo:#6C7550;
+      --linea:#DED2C4;
+      --whatsapp:#25D366;
+      --instagram:#C13584;
+      --sombra:0 18px 45px rgba(44,31,21,.10);
+      --sombra-suave:0 8px 24px rgba(44,31,21,.07);
+      --radio-xl:28px;
+      --radio-lg:22px;
+      --radio-md:16px;
+      --transicion:220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      background:var(--fondo);
+    }
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 10% -10%, rgba(166,79,49,.07), transparent 28%),
+        var(--fondo);
+      color:var(--texto);
+      font-family:Arial,Helvetica,sans-serif;
+    }
+
+    body.modal-abierto{
+      overflow:hidden;
+    }
+
+    button,
+    a{
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    button:focus-visible,
+    a:focus-visible{
+      outline:3px solid rgba(166,79,49,.28);
+      outline-offset:3px;
+    }
+
+    img{
+      max-width:100%;
+    }
+
+    /* ===================================================== */
+    /* PORTADA CINEMÁTICA                                     */
+    /* ===================================================== */
+
+    .hero{
+      position:relative;
+      min-height:460px;
+      display:grid;
+      align-items:end;
+      overflow:hidden;
+      color:#fff;
+      background:
+        linear-gradient(180deg,rgba(20,14,10,.12),rgba(20,14,10,.72)),
+        linear-gradient(135deg,var(--acento),var(--acento-oscuro));
+      isolation:isolate;
+    }
+
+    .hero-media{
+      position:absolute;
+      inset:0;
+      z-index:-2;
+    }
+
+    .hero-media img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .hero-overlay{
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      background:
+        linear-gradient(90deg,rgba(25,17,12,.72),rgba(25,17,12,.22) 55%,rgba(25,17,12,.08)),
+        linear-gradient(0deg,rgba(20,14,10,.64),transparent 58%);
+    }
+
+    .hero-fallback{
+      position:absolute;
+      inset:0;
+      z-index:-3;
+      background:
+        radial-gradient(circle at 75% 20%,rgba(255,255,255,.14),transparent 24%),
+        linear-gradient(135deg,var(--acento),var(--acento-oscuro));
+    }
+
+    .hero-inner{
+      width:min(1280px,100%);
+      margin:0 auto;
+      padding:54px 22px 50px;
+    }
+
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:18px;
+      padding:8px 12px;
+      border:1px solid rgba(255,255,255,.35);
+      border-radius:999px;
+      background:rgba(20,14,10,.18);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+      font-size:11px;
+      font-weight:bold;
+      letter-spacing:1.2px;
+    }
+
+    .hero h1{
+      max-width:830px;
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(52px,9vw,100px);
+      font-weight:normal;
+      line-height:.94;
+      text-wrap:balance;
+    }
+
+    .hero-subtitulo{
+      max-width:650px;
+      margin:19px 0 0;
+      font-size:16px;
+      line-height:1.75;
+      color:rgba(255,255,255,.92);
+    }
+
+    .hero-acciones{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .cta{
+      min-height:48px;
+      padding:13px 18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      border:0;
+      border-radius:999px;
+      text-decoration:none;
+      font-size:12px;
+      font-weight:bold;
+      letter-spacing:.45px;
+      cursor:pointer;
+      transition:transform var(--transicion),background var(--transicion);
+    }
+
+    .cta:hover{
+      transform:translateY(-1px);
+    }
+
+    .cta-primario{
+      background:#fff;
+      color:var(--texto);
+    }
+
+    .cta-secundario{
+      border:1px solid rgba(255,255,255,.38);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      backdrop-filter:blur(7px);
+      -webkit-backdrop-filter:blur(7px);
+    }
+
+    /* ===================================================== */
+    /* NAVEGACIÓN SUPERIOR                                    */
+    /* ===================================================== */
+
+    .nav-principal-wrap{
+      position:sticky;
+      top:0;
+      z-index:100;
+      border-bottom:1px solid rgba(222,210,196,.78);
+      background:rgba(245,240,232,.91);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+    }
+
+    .nav-principal{
+      width:min(1280px,100%);
+      margin:0 auto;
+      padding:10px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .nav-marca{
+      min-width:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:19px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .nav-acciones{
+      display:flex;
+      gap:8px;
+    }
+
+    .nav-principal button{
+      min-height:42px;
+      padding:9px 17px;
+      border:1px solid transparent;
+      border-radius:999px;
+      background:transparent;
+      color:var(--texto-suave);
+      font-size:12px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:all var(--transicion);
+    }
+
+    .nav-principal button:hover{
+      background:rgba(255,255,255,.55);
+      color:var(--texto);
+    }
+
+    .nav-principal button.activo{
+      background:var(--texto);
+      color:#fff;
+    }
+
+    /* ===================================================== */
+    /* ESTRUCTURA                                             */
+    /* ===================================================== */
+
+    .contenedor{
+      width:min(1280px,100%);
+      margin:0 auto;
+      padding:34px 18px 58px;
+    }
+
+    .vista{
+      display:none;
+    }
+
+    .vista.activa{
+      display:block;
+      animation:entrada .28s ease both;
+    }
+
+    @keyframes entrada{
+      from{opacity:0;transform:translateY(6px)}
+      to{opacity:1;transform:none}
+    }
+
+    .section-kicker{
+      margin:0 0 8px;
+      color:var(--acento);
+      font-size:11px;
+      font-weight:bold;
+      letter-spacing:1.4px;
+    }
+
+    /* ===================================================== */
+    /* INICIO                                                 */
+    /* ===================================================== */
+
+    .inicio-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .panel{
+      overflow:hidden;
+      border:1px solid var(--linea);
+      border-radius:var(--radio-xl);
+      background:var(--tarjeta);
+      box-shadow:var(--sombra);
+    }
+
+    .historia-imagen{
+      position:relative;
+      min-height:330px;
+      overflow:hidden;
+      background:linear-gradient(135deg,#8D4A30,#C18456);
+    }
+
+    .historia-imagen img{
+      width:100%;
+      height:100%;
+      min-height:330px;
+      object-fit:cover;
+      display:block;
+    }
+
+    .historia-fallback{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px;
+      text-align:center;
+      color:rgba(255,255,255,.9);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:28px;
+    }
+
+    .historia-contenido{
+      padding:30px;
+    }
+
+    .historia-contenido h2,
+    .contacto-panel h2{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-weight:normal;
+      font-size:clamp(31px,4vw,46px);
+      line-height:1.08;
+    }
+
+    .historia-contenido p,
+    .contacto-panel p{
+      margin:15px 0 0;
+      color:var(--texto-suave);
+      font-size:15px;
+      line-height:1.8;
+    }
+
+    .contacto-panel{
+      padding:28px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:22px;
+    }
+
+    .contacto-lista{
+      display:grid;
+      gap:10px;
+    }
+
+    .contacto-item{
+      padding:14px 15px;
+      border:1px solid #E8DDD1;
+      border-radius:var(--radio-md);
+      background:#FAF7F2;
+    }
+
+    .contacto-item strong{
+      display:block;
+      margin-bottom:4px;
+      color:#76685D;
+      font-size:10px;
+      letter-spacing:1px;
+    }
+
+    .contacto-item span{
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .contacto-botones{
+      display:grid;
+      gap:9px;
+    }
+
+    .boton-ancho{
+      min-height:48px;
+      padding:12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      border:0;
+      border-radius:14px;
+      font-size:12px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .boton-maps{
+      background:var(--texto);
+      color:#fff;
+    }
+
+    .boton-pedido{
+      background:var(--acento);
+      color:#fff;
+    }
+
+    /* ===================================================== */
+    /* MENÚ                                                   */
+    /* ===================================================== */
+
+    .intro{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:30px;
+      margin-bottom:22px;
+    }
+
+    .intro h2{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(34px,5vw,52px);
+      font-weight:normal;
+    }
+
+    .intro p{
+      max-width:580px;
+      margin:9px 0 0;
+      color:var(--texto-suave);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .leyenda-ar{
+      flex-shrink:0;
+      padding:10px 14px;
+      border:1px solid #DDD6C7;
+      border-radius:999px;
+      background:#EEE9DD;
+      color:var(--olivo);
+      font-size:10px;
+      font-weight:bold;
+      letter-spacing:.8px;
+    }
+
+    .categorias{
+      display:flex;
+      gap:9px;
+      overflow-x:auto;
+      padding:3px 0 18px;
+      scrollbar-width:none;
+    }
+
+    .categorias::-webkit-scrollbar{display:none}
+
+    .categoria{
+      flex:0 0 auto;
+      min-height:42px;
+      padding:9px 16px;
+      border:1px solid var(--linea);
+      border-radius:999px;
+      background:rgba(255,253,249,.82);
+      color:var(--texto);
+      font-size:12px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:all var(--transicion);
+    }
+
+    .categoria:hover{
+      transform:translateY(-1px);
+    }
+
+    .categoria.activa{
+      border-color:var(--texto);
+      background:var(--texto);
+      color:#fff;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:400px minmax(0,1fr);
+      gap:22px;
+      align-items:start;
+    }
+
+    /* ===================================================== */
+    /* TARJETAS                                               */
+    /* ===================================================== */
+
+    .lista{
+      display:grid;
+      gap:14px;
+    }
+
+    .platillo{
+      width:100%;
+      padding:0;
+      overflow:hidden;
+      text-align:left;
+      border:1px solid var(--linea);
+      border-radius:var(--radio-lg);
+      background:var(--tarjeta);
+      box-shadow:var(--sombra-suave);
+      cursor:pointer;
+      transition:transform var(--transicion),box-shadow var(--transicion),border-color var(--transicion);
+    }
+
+    .platillo:hover{
+      transform:translateY(-3px);
+      box-shadow:var(--sombra);
+    }
+
+    .platillo.activo{
+      border-color:rgba(166,79,49,.78);
+      box-shadow:0 18px 40px rgba(166,79,49,.14);
+    }
+
+    .platillo-visual{
+      position:relative;
+      height:210px;
+      overflow:hidden;
+      background:#E9E0D5;
+    }
+
+    .platillo-visual::after{
+      content:"";
+      position:absolute;
+      inset:auto 0 0;
+      height:58%;
+      background:linear-gradient(transparent,rgba(22,15,11,.58));
+      pointer-events:none;
+    }
+
+    .platillo-visual img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      transition:transform .32s ease;
+    }
+
+    .platillo:hover .platillo-visual img{
+      transform:scale(1.035);
+    }
+
+    .foto-fallback{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:linear-gradient(135deg,#DCCFC1,#EEE5DC);
+      color:#786C62;
+      text-align:center;
+      font-size:12px;
+    }
+
+    .distintivo{
+      position:absolute;
+      top:12px;
+      right:12px;
+      z-index:4;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.92);
+      color:var(--acento-oscuro);
+      font-size:10px;
+      font-weight:bold;
+      letter-spacing:.7px;
+      box-shadow:0 5px 16px rgba(0,0,0,.08);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+    }
+
+    .foto-titulo{
+      position:absolute;
+      z-index:3;
+      left:15px;
+      right:15px;
+      bottom:14px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      color:#fff;
+    }
+
+    .foto-titulo strong{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:22px;
+      line-height:1.05;
+      text-shadow:0 2px 8px rgba(0,0,0,.22);
+    }
+
+    .foto-titulo span{
+      font-size:17px;
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    .platillo-info{
+      padding:14px 15px 16px;
+    }
+
+    .platillo-descripcion{
+      margin:0;
+      color:var(--texto-suave);
+      font-size:13px;
+      line-height:1.58;
+    }
+
+    /* ===================================================== */
+    /* DETALLE 3D                                             */
+    /* ===================================================== */
+
+    .detalle{
+      position:sticky;
+      top:74px;
+      overflow:hidden;
+      border:1px solid var(--linea);
+      border-radius:var(--radio-xl);
+      background:var(--tarjeta);
+      box-shadow:var(--sombra);
+    }
+
+    .detalle-cabecera{
+      padding:27px 27px 19px;
+    }
+
+    .detalle-titulo-precio{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:24px;
+    }
+
+    #detalleNombre{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(32px,4vw,48px);
+      font-weight:normal;
+      line-height:1.02;
+    }
+
+    #detallePrecio{
+      color:var(--acento);
+      font-size:27px;
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    #detalleDescripcion{
+      max-width:720px;
+      margin:13px 0 0;
+      color:var(--texto-suave);
+      font-size:14px;
+      line-height:1.72;
+    }
+
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin-top:15px;
+    }
+
+    .badge{
+      padding:7px 10px;
+      border-radius:999px;
+      background:#F0E8DE;
+      color:#65594F;
+      font-size:10px;
+      font-weight:bold;
+      letter-spacing:.3px;
+    }
+
+    .visor-contenedor{
+      padding:0 27px;
+    }
+
+    .visor{
+      position:relative;
+      min-height:500px;
+      overflow:hidden;
+      border:1px solid var(--linea);
+      border-radius:22px;
+      background:
+        radial-gradient(circle at 50% 10%,#FFF,#EEE5DA 72%);
+    }
+
+    #viewerHost{
+      width:100%;
+      min-height:500px;
+    }
+
+    model-viewer{
+      display:block;
+      width:100%;
+      height:500px;
+      background:transparent;
+    }
+
+    .estado-modelo{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      z-index:10;
+      width:80%;
+      padding:12px;
+      text-align:center;
+      color:var(--texto-suave);
+      font-size:13px;
+      pointer-events:none;
+    }
+
+    .estado-modelo.error{
+      border-radius:12px;
+      background:rgba(255,255,255,.93);
+      color:#912F25;
+    }
+
+    .loader{
+      width:34px;
+      height:34px;
+      margin:0 auto 10px;
+      border:3px solid rgba(166,79,49,.18);
+      border-top-color:var(--acento);
+      border-radius:50%;
+      animation:giro 1s linear infinite;
+    }
+
+    @keyframes giro{
+      to{transform:rotate(360deg)}
+    }
+
+    .instruccion{
+      margin:11px 0 0;
+      text-align:center;
+      color:var(--texto-suave);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .instruccion strong{
+      color:#4D443D;
+    }
+
+    .acciones-ar{
+      display:flex;
+      justify-content:center;
+      margin:14px 0 0;
+    }
+
+    .boton-ar-principal{
+      width:min(100%,390px);
+      min-height:52px;
+      padding:14px 20px;
+      border:0;
+      border-radius:15px;
+      background:var(--acento);
+      color:#fff;
+      font-size:13px;
+      font-weight:bold;
+      letter-spacing:.45px;
+      cursor:pointer;
+      box-shadow:0 12px 25px rgba(166,79,49,.22);
+      transition:transform var(--transicion),box-shadow var(--transicion);
+    }
+
+    .boton-ar-principal:hover{
+      transform:translateY(-1px);
+      box-shadow:0 15px 30px rgba(166,79,49,.27);
+    }
+
+    .boton-ar-principal:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    /* INFORMACIÓN */
+    .informacion{
+      padding:8px 27px 28px;
+    }
+
+    .bloque-info{
+      padding-top:17px;
+      margin-top:17px;
+      border-top:1px solid #E9E0D6;
+    }
+
+    .bloque-info h3{
+      margin:0 0 8px;
+      color:#817369;
+      font-size:10px;
+      letter-spacing:1.3px;
+    }
+
+    .bloque-info p{
+      margin:0;
+      color:#473E37;
+      font-size:14px;
+      line-height:1.65;
+    }
+
+    .datos-secundarios{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:0 28px;
+    }
+
+
+    /* ===================================================== */
+    /* EVENTOS                                                */
+    /* ===================================================== */
+
+    .eventos-encabezado{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin-bottom:22px;
+    }
+
+    .eventos-encabezado h2{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(34px,5vw,52px);
+      font-weight:normal;
+    }
+
+    .eventos-encabezado p{
+      max-width:620px;
+      margin:9px 0 0;
+      color:var(--texto-suave);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .eventos-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
+
+    .evento-card{
+      overflow:hidden;
+      border:1px solid var(--linea);
+      border-radius:var(--radio-xl);
+      background:var(--tarjeta);
+      box-shadow:var(--sombra-suave);
+    }
+
+    .evento-imagen{
+      position:relative;
+      min-height:230px;
+      overflow:hidden;
+      background:linear-gradient(135deg,#DCCFC1,#EEE5DC);
+    }
+
+    .evento-imagen img{
+      width:100%;
+      height:230px;
+      object-fit:cover;
+      display:block;
+    }
+
+    .evento-imagen-fallback{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      text-align:center;
+      color:#786C62;
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .evento-contenido{
+      padding:22px;
+    }
+
+    .evento-fecha{
+      margin:0 0 8px;
+      color:var(--acento);
+      font-size:10px;
+      font-weight:bold;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+    }
+
+    .evento-contenido h3{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:27px;
+      font-weight:normal;
+      line-height:1.12;
+    }
+
+    .evento-descripcion{
+      margin:11px 0 0;
+      color:var(--texto-suave);
+      font-size:13px;
+      line-height:1.65;
+    }
+
+    .evento-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:15px;
+    }
+
+    .evento-meta span{
+      padding:7px 10px;
+      border-radius:999px;
+      background:#F0E8DE;
+      color:#65594F;
+      font-size:10px;
+      font-weight:bold;
+    }
+
+    .evento-boton{
+      margin-top:17px;
+      min-height:43px;
+      padding:10px 15px;
+      border:0;
+      border-radius:999px;
+      background:var(--texto);
+      color:#fff;
+      font-size:11px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .eventos-vacio{
+      grid-column:1 / -1;
+      padding:46px 24px;
+      border:1px dashed var(--linea);
+      border-radius:var(--radio-xl);
+      background:rgba(255,253,249,.62);
+      text-align:center;
+    }
+
+    .eventos-vacio strong{
+      display:block;
+      margin-bottom:8px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:28px;
+      font-weight:normal;
+    }
+
+    .eventos-vacio span{
+      color:var(--texto-suave);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    /* ===================================================== */
+    /* MODAL AR                                               */
+    /* ===================================================== */
+
+    .modal-ar{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      padding:18px;
+      align-items:center;
+      justify-content:center;
+      background:rgba(22,18,15,.66);
+      backdrop-filter:blur(7px);
+      -webkit-backdrop-filter:blur(7px);
+    }
+
+    .modal-ar.abierto{
+      display:flex;
+    }
+
+    .modal-ar-card{
+      width:min(100%,470px);
+      max-height:90vh;
+      overflow:auto;
+      padding:26px 20px 20px;
+      border-radius:26px;
+      background:#FFFDF9;
+      color:var(--texto);
+      box-shadow:0 25px 80px rgba(0,0,0,.30);
+      text-align:center;
+    }
+
+    .modal-ar-etiqueta{
+      margin:0 0 7px;
+      color:var(--acento);
+      font-size:10px;
+      font-weight:bold;
+      letter-spacing:1.4px;
+    }
+
+    .modal-ar-card h3{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:31px;
+      font-weight:normal;
+      line-height:1.08;
+    }
+
+    .modal-ar-intro{
+      margin:9px auto 17px;
+      max-width:370px;
+      color:var(--texto-suave);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .gestos-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .gesto{
+      padding:17px 10px 14px;
+      border:1px solid var(--linea);
+      border-radius:17px;
+      background:#F8F3EC;
+    }
+
+    .gesto-icono{
+      display:block;
+      margin-bottom:7px;
+      font-size:32px;
+      line-height:1;
+    }
+
+    .gesto strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:12px;
+    }
+
+    .gesto span{
+      display:block;
+      color:var(--texto-suave);
+      font-size:11px;
+      line-height:1.4;
+    }
+
+    .nota-gestos{
+      margin:10px auto 16px;
+      color:#8B7E73;
+      font-size:10px;
+      line-height:1.45;
+    }
+
+    .modal-ar-acciones{
+      display:grid;
+      gap:9px;
+    }
+
+    .modal-ar-abrir,
+    .modal-ar-cancelar{
+      min-height:48px;
+      border-radius:14px;
+      font-size:12px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .modal-ar-abrir{
+      border:0;
+      background:var(--acento);
+      color:#fff;
+    }
+
+    .modal-ar-cancelar{
+      border:1px solid var(--linea);
+      background:transparent;
+      color:var(--texto-suave);
+    }
+
+
+    /* ===================================================== */
+    /* INSTAGRAM MINI                                        */
+    /* ===================================================== */
+
+    .instagram-flotante{
+      position:fixed;
+      right:16px;
+      bottom:78px;
+      z-index:500;
+      width:50px;
+      height:50px;
+      padding:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:0;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 105%,#FEDA75 0 18%,#FA7E1E 30%,#D62976 55%,#962FBF 76%,#4F5BD5 100%);
+      box-shadow:0 12px 26px rgba(0,0,0,.20);
+      cursor:pointer;
+      transition:transform var(--transicion);
+    }
+
+    .instagram-flotante:hover{
+      transform:translateY(-2px) scale(1.02);
+    }
+
+    .instagram-flotante svg{
+      width:26px;
+      height:26px;
+      fill:none;
+      stroke:#fff;
+      stroke-width:2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    /* ===================================================== */
+    /* WHATSAPP MINI                                         */
+    /* ===================================================== */
+
+    .whatsapp-flotante{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      z-index:500;
+      width:50px;
+      height:50px;
+      padding:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:0;
+      border-radius:50%;
+      background:var(--whatsapp);
+      box-shadow:0 12px 26px rgba(0,0,0,.20);
+      cursor:pointer;
+      transition:transform var(--transicion);
+    }
+
+    .whatsapp-flotante:hover{
+      transform:translateY(-2px) scale(1.02);
+    }
+
+    .whatsapp-flotante svg{
+      width:27px;
+      height:27px;
+      fill:none;
+      stroke:#fff;
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    /* ===================================================== */
+    /* NAVEGACIÓN MÓVIL                                      */
+    /* ===================================================== */
+
+    .nav-movil{
+      display:none;
+      position:fixed;
+      left:10px;
+      right:10px;
+      bottom:10px;
+      z-index:400;
+      min-height:62px;
+      padding:7px;
+      grid-template-columns:repeat(4,1fr);
+      gap:4px;
+      border:1px solid rgba(222,210,196,.92);
+      border-radius:20px;
+      background:rgba(255,253,249,.94);
+      box-shadow:0 16px 38px rgba(38,28,20,.18);
+      backdrop-filter:blur(13px);
+      -webkit-backdrop-filter:blur(13px);
+    }
+
+    .nav-movil button{
+      min-width:0;
+      min-height:48px;
+      padding:6px 3px;
+      display:grid;
+      place-items:center;
+      gap:2px;
+      border:0;
+      border-radius:14px;
+      background:transparent;
+      color:var(--texto-suave);
+      font-size:9px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .nav-movil button.activo{
+      background:#F0E8DE;
+      color:var(--acento-oscuro);
+    }
+
+    .nav-movil .nav-icono{
+      display:block;
+      font-size:18px;
+      line-height:1;
+    }
+
+    /* TOAST */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:86px;
+      z-index:10000;
+      width:min(calc(100% - 32px),430px);
+      padding:12px 15px;
+      transform:translate(-50%,14px);
+      opacity:0;
+      pointer-events:none;
+      border-radius:13px;
+      background:#27221E;
+      color:#fff;
+      font-size:12px;
+      line-height:1.5;
+      text-align:center;
+      transition:opacity .2s ease,transform .2s ease;
+      box-shadow:0 12px 28px rgba(0,0,0,.2);
+    }
+
+    .toast.visible{
+      opacity:1;
+      transform:translate(-50%,0);
+    }
+
+    footer{
+      padding:20px 15px 84px;
+      text-align:center;
+      color:#8A7E74;
+      font-size:11px;
+      line-height:1.7;
+    }
+
+    @media (max-width:1000px){
+      .inicio-grid{
+        grid-template-columns:1fr;
+      }
+
+      .layout{
+        grid-template-columns:1fr;
+      }
+
+      .detalle{
+        position:static;
+      }
+
+      .lista{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:720px){
+      .hero{
+        min-height:430px;
+      }
+
+      .hero-inner{
+        padding:48px 18px 38px;
+      }
+
+      .hero h1{
+        font-size:clamp(48px,16vw,76px);
+      }
+
+      .nav-principal-wrap{
+        display:none;
+      }
+
+      .contenedor{
+        padding:24px 11px 118px;
+      }
+
+      .intro{
+        display:block;
+      }
+
+      .leyenda-ar{
+        display:inline-block;
+        margin-top:14px;
+      }
+
+      .lista{
+        grid-template-columns:1fr;
+      }
+
+      .platillo-visual{
+        height:235px;
+      }
+
+      .detalle-cabecera{
+        padding:23px 18px 16px;
+      }
+
+      .detalle-titulo-precio{
+        display:block;
+      }
+
+      #detallePrecio{
+        margin-top:7px;
+      }
+
+      .visor-contenedor{
+        padding:0 10px;
+      }
+
+      .visor,
+      #viewerHost{
+        min-height:405px;
+      }
+
+      model-viewer{
+        height:405px;
+      }
+
+      .informacion{
+        padding:8px 19px 26px;
+      }
+
+      .datos-secundarios{
+        grid-template-columns:1fr;
+      }
+
+      .gestos-grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .nav-movil{
+        display:grid;
+      }
+
+      .whatsapp-flotante{
+        right:14px;
+        bottom:84px;
+        width:46px;
+        height:46px;
+      }
+
+
+      .instagram-flotante{
+        right:14px;
+        bottom:140px;
+        width:46px;
+        height:46px;
+      }
+
+      .instagram-flotante svg{
+        width:24px;
+        height:24px;
+      }
+
+      .eventos-grid{
+        grid-template-columns:1fr;
+      }
+
+      .eventos-encabezado{
+        display:block;
+      }
+
+      footer{
+        padding-bottom:105px;
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *{
+        scroll-behavior:auto !important;
+        animation-duration:.01ms !important;
+        transition-duration:.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ===================================================== -->
+<!-- PORTADA                                                -->
+<!-- ===================================================== -->
+
+<header class="hero" id="portada">
+
+  <div class="hero-fallback"></div>
+
+  <div class="hero-media">
+    <img
+      id="heroImagen"
+      alt="Ambiente del restaurante">
+  </div>
+
+  <div class="hero-overlay"></div>
+
+  <div class="hero-inner">
+
+    <div class="hero-kicker">
+      MENÚ INTERACTIVO · 3D + AR
+    </div>
+
+    <h1 id="heroNombre">
+      Restaurante
+    </h1>
+
+    <p
+      class="hero-subtitulo"
+      id="heroSubtitulo">
+    </p>
+
+    <div class="hero-acciones">
+
+      <button
+        type="button"
+        class="cta cta-primario"
+        id="heroMenu">
+        EXPLORAR MENÚ
+      </button>
+
+      <button
+        type="button"
+        class="cta cta-secundario"
+        id="heroInicio">
+        CONOCER EL RESTAURANTE
+      </button>
+
+    </div>
+
+  </div>
+
+</header>
+
+<!-- ===================================================== -->
+<!-- NAVEGACIÓN DESKTOP                                     -->
+<!-- ===================================================== -->
+
+<div class="nav-principal-wrap">
+  <nav class="nav-principal">
+
+    <div
+      class="nav-marca"
+      id="navMarca">
+      Restaurante
+    </div>
+
+    <div class="nav-acciones">
+
+      <button
+        type="button"
+        id="navInicio">
+        INICIO
+      </button>
+
+      <button
+        type="button"
+        id="navMenu"
+        class="activo">
+        MENÚ
+      </button>
+
+      <button
+        type="button"
+        id="navEventos">
+        EVENTOS
+      </button>
+
+      <button
+        type="button"
+        id="navUbicacion">
+        MAPA
+      </button>
+
+    </div>
+
+  </nav>
+</div>
+
+<main class="contenedor">
+
+  <!-- =================================================== -->
+  <!-- INICIO                                               -->
+  <!-- =================================================== -->
+
+  <section
+    class="vista"
+    id="vistaInicio">
+
+    <div class="inicio-grid">
+
+      <article class="panel">
+
+        <div class="historia-imagen">
+
+          <div
+            class="historia-fallback"
+            id="historiaFallback">
+            Fotografía del restaurante
+          </div>
+
+          <img
+            id="imagenRestaurante"
+            alt="Fotografía del restaurante"
+            loading="lazy">
+
+        </div>
+
+        <div class="historia-contenido">
+
+          <p class="section-kicker">
+            NUESTRA HISTORIA
+          </p>
+
+          <h2 id="inicioTitulo">
+          </h2>
+
+          <p id="inicioHistoria">
+          </p>
+
+        </div>
+
+      </article>
+
+      <aside class="panel contacto-panel">
+
+        <div>
+
+          <p class="section-kicker">
+            VISÍTANOS
+          </p>
+
+          <h2>
+            Tu próxima mesa empieza aquí
+          </h2>
+
+          <p id="inicioContactoTexto">
+          </p>
+
+        </div>
+
+        <div class="contacto-lista">
+
+          <div class="contacto-item">
+
+            <strong>
+              UBICACIÓN
+            </strong>
+
+            <span id="textoUbicacion">
+            </span>
+
+          </div>
+
+          <div
+            class="contacto-item"
+            id="contactoHorario">
+
+            <strong>
+              HORARIO
+            </strong>
+
+            <span id="textoHorario">
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="contacto-botones">
+
+          <button
+            type="button"
+            class="boton-ancho boton-maps"
+            id="botonMaps">
+            📍 VER EN GOOGLE MAPS
+          </button>
+
+          <button
+            type="button"
+            class="boton-ancho boton-pedido"
+            id="botonPedidoInicio">
+            PEDIR PARA LLEVAR
+          </button>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+  </section>
+
+  <!-- =================================================== -->
+  <!-- MENÚ                                                 -->
+  <!-- =================================================== -->
+
+  <section
+    class="vista activa"
+    id="vistaMenu">
+
+    <section class="intro">
+
+      <div>
+
+        <p class="section-kicker">
+          DESCUBRE
+        </p>
+
+        <h2>
+          Nuestro menú
+        </h2>
+
+        <p>
+          Elige un platillo, explóralo en 3D y colócalo virtualmente
+          sobre tu mesa antes de ordenar.
+        </p>
+
+      </div>
+
+      <div class="leyenda-ar">
+        ◆ 3D + REALIDAD AUMENTADA
+      </div>
+
+    </section>
+
+    <nav
+      class="categorias"
+      id="categorias"
+      aria-label="Categorías del menú">
+    </nav>
+
+    <div class="layout">
+
+      <section
+        class="lista"
+        id="listaPlatillos"
+        aria-label="Platillos">
+      </section>
+
+      <article
+        class="detalle"
+        id="detallePlatillo">
+
+        <div class="detalle-cabecera">
+
+          <div class="detalle-titulo-precio">
+
+            <h2 id="detalleNombre">
+            </h2>
+
+            <div id="detallePrecio">
+            </div>
+
+          </div>
+
+          <p id="detalleDescripcion">
+          </p>
+
+          <div
+            class="badges"
+            id="detalleBadges">
+          </div>
+
+        </div>
+
+        <div class="visor-contenedor">
+
+          <div class="visor">
+
+            <div id="viewerHost">
+            </div>
+
+            <div
+              class="estado-modelo"
+              id="estadoModelo">
+
+              <div class="loader"></div>
+              Cargando modelo 3D...
+
+            </div>
+
+          </div>
+
+          <p class="instruccion">
+            <strong>Visor 3D:</strong>
+            1 dedo para girar · 2 dedos para mover
+          </p>
+
+          <div class="acciones-ar">
+
+            <button
+              type="button"
+              class="boton-ar-principal"
+              id="abrirAyudaAR"
+              disabled>
+              ◉ VER EN TU MESA
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="informacion">
+
+          <section class="bloque-info">
+
+            <h3>
+              INGREDIENTES PRINCIPALES
+            </h3>
+
+            <p id="detalleIngredientes">
+            </p>
+
+          </section>
+
+          <div class="datos-secundarios">
+
+            <section class="bloque-info">
+
+              <h3>
+                ALÉRGENOS
+              </h3>
+
+              <p id="detalleAlergenos">
+              </p>
+
+            </section>
+
+            <section class="bloque-info">
+
+              <h3>
+                PORCIÓN
+              </h3>
+
+              <p id="detallePorcion">
+              </p>
+
+            </section>
+
+            <section class="bloque-info">
+
+              <h3>
+                PICANTE
+              </h3>
+
+              <p id="detallePicante">
+              </p>
+
+            </section>
+
+            <section class="bloque-info">
+
+              <h3>
+                TIPO DE DIETA
+              </h3>
+
+              <p id="detalleDieta">
+              </p>
+
+            </section>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+  <!-- =================================================== -->
+  <!-- EVENTOS                                              -->
+  <!-- =================================================== -->
+
+  <section
+    class="vista"
+    id="vistaEventos">
+
+    <section class="eventos-encabezado">
+
+      <div>
+        <p class="section-kicker">
+          AGENDA
+        </p>
+
+        <h2>
+          Eventos
+        </h2>
+
+        <p>
+          Conoce las próximas experiencias, noches especiales y actividades del restaurante.
+        </p>
+      </div>
+
+    </section>
+
+    <div
+      class="eventos-grid"
+      id="eventosGrid">
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ===================================================== -->
+<!-- MODAL DE INSTRUCCIONES AR                             -->
+<!-- ===================================================== -->
+
+<div
+  class="modal-ar"
+  id="modalAR"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modalARTitulo"
+  aria-hidden="true">
+
+  <div class="modal-ar-card">
+
+    <p class="modal-ar-etiqueta">
+      EN REALIDAD AUMENTADA
+    </p>
+
+    <h3 id="modalARTitulo">
+      Colócalo sobre tu mesa
+    </h3>
+
+    <p class="modal-ar-intro">
+      Cuando aparezca el platillo, usa estos gestos para acomodarlo.
+    </p>
+
+    <div class="gestos-grid">
+
+      <div class="gesto">
+
+        <span class="gesto-icono">
+          ☝️
+        </span>
+
+        <strong>
+          1 dedo
+        </strong>
+
+        <span>
+          Desliza para mover el platillo
+        </span>
+
+      </div>
+
+      <div class="gesto">
+
+        <span class="gesto-icono">
+          ✌️
+        </span>
+
+        <strong>
+          2 dedos
+        </strong>
+
+        <span>
+          Desliza para girar el platillo
+        </span>
+
+      </div>
+
+    </div>
+
+    <p class="nota-gestos">
+      Algunos controles pueden variar ligeramente según el visor AR del dispositivo.
+    </p>
+
+    <div class="modal-ar-acciones">
+
+      <button
+        type="button"
+        class="modal-ar-abrir"
+        id="confirmarAR">
+        ENTENDIDO · ABRIR AR
+      </button>
+
+      <button
+        type="button"
+        class="modal-ar-cancelar"
+        id="cancelarAR">
+        VOLVER
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- INSTAGRAM MINI                                        -->
+<!-- ===================================================== -->
+
+<button
+  type="button"
+  class="instagram-flotante"
+  id="instagramFlotante"
+  aria-label="Abrir Instagram"
+  title="Instagram">
+
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true">
+
+    <rect
+      x="3"
+      y="3"
+      width="18"
+      height="18"
+      rx="5">
+    </rect>
+
+    <circle
+      cx="12"
+      cy="12"
+      r="4">
+    </circle>
+
+    <circle
+      cx="17.4"
+      cy="6.7"
+      r="1">
+    </circle>
+
+  </svg>
+
+</button>
+
+<!-- ===================================================== -->
+<!-- WHATSAPP MINI                                         -->
+<!-- ===================================================== -->
+
+<button
+  type="button"
+  class="whatsapp-flotante"
+  id="whatsappFlotante"
+  aria-label="Hacer pedido por WhatsApp"
+  title="Pedidos por WhatsApp">
+
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true">
+
+    <path
+      d="M20 11.7a8 8 0 0 1-11.8 7L4 20l1.3-4A8 8 0 1 1 20 11.7Z">
+    </path>
+
+    <path
+      d="M9.2 8.1c.4-.3.8-.1 1 .3l.7 1.5c.1.3.1.6-.1.8l-.6.7c.7 1.4 1.8 2.4 3.2 3l.7-.8c.2-.2.5-.3.8-.1l1.5.7c.4.2.5.6.3 1-.4.8-1.2 1.3-2.1 1.2-3.6-.5-6.5-3.3-7-6.9-.1-.7.5-1.2 1.6-1.4Z">
+    </path>
+
+  </svg>
+
+</button>
+
+<!-- ===================================================== -->
+<!-- NAVEGACIÓN MÓVIL                                      -->
+<!-- ===================================================== -->
+
+<nav
+  class="nav-movil"
+  aria-label="Navegación móvil">
+
+  <button
+    type="button"
+    id="movilInicio">
+
+    <span class="nav-icono">⌂</span>
+    INICIO
+
+  </button>
+
+  <button
+    type="button"
+    id="movilMenu"
+    class="activo">
+
+    <span class="nav-icono">☰</span>
+    MENÚ
+
+  </button>
+
+  <button
+    type="button"
+    id="movilEventos">
+
+    <span class="nav-icono">✦</span>
+    EVENTOS
+
+  </button>
+
+<button
+    type="button"
+    id="movilMaps">
+
+    <span class="nav-icono">⌖</span>
+    MAPA
+
+  </button>
+
+</nav>
+
+<div
+  class="toast"
+  id="toast"
+  role="status"
+  aria-live="polite">
+</div>
+
+<footer id="footerTexto">
+</footer>
+
+<script>
+
+  /* ===================================================== */
+  /* ===================================================== */
+  /*                                                       */
+  /*            ★★★ PLANTILLA MAESTRA V2 ★★★             */
+  /*                                                       */
+  /*   PARA OTRO RESTAURANTE EDITA SOLO ESTA SECCIÓN.     */
+  /*   EL RESTO DEL CÓDIGO NO NECESITA MODIFICARSE.       */
+  /*                                                       */
+  /* ===================================================== */
+  /* ===================================================== */
+
+  const CONFIG = {
+
+    restaurante: {
+
+      /* NOMBRE */
+      nombre:
+        "Casa Mezquite",
+
+      /* TEXTO PRINCIPAL DE PORTADA */
+      subtitulo:
+        "Cocina contemporánea para explorar antes de ordenar. Descubre nuestros platillos en 3D y visualízalos directamente sobre tu mesa.",
+
+      /* FOTO GRANDE DE PORTADA */
+      heroImagen:
+        "images/restaurante/casa_mezquite.jpg",
+
+      /* FOTO DE LA SECCIÓN HISTORIA */
+      imagenRestaurante:
+        "images/restaurante/hero.jpg",
+
+      /* HISTORIA */
+      tituloHistoria:
+        "Cocina cercana, sabores con carácter",
+
+      historia:
+        "Casa Mezquite es un concepto gastronómico contemporáneo que reúne recetas reconfortantes, ingredientes reconocibles y una presentación cuidada. Queremos que elegir sea parte de la experiencia: mira el platillo, conoce sus detalles y visualízalo sobre tu mesa antes de ordenar.",
+
+      /* CONTACTO */
+      contactoTexto:
+        "Consulta nuestra ubicación o pide por WhatsApp.",
+
+      ubicacionTexto:
+        "Centro Histórico, SLP",
+
+      horario:
+        "Lun–Dom · 13:00–23:00",
+
+      /* ENLACE COMPLETO DE GOOGLE MAPS */
+      mapsUrl:
+        "https://maps.app.goo.gl/NpdVYTNiAbNm2G8f7",
+
+      /* SOLO NÚMEROS, INCLUYENDO CÓDIGO DE PAÍS */
+      whatsappNumero:
+        "525653317595",
+
+      /* TEXTO QUE APARECE AL ABRIR WHATSAPP */
+      mensajeWhatsApp:
+        "Hola, quiero hacer un pedido o reservación.",
+
+      /* ENLACE COMPLETO DE INSTAGRAM
+         Ejemplo: "https://www.instagram.com/casamezquite/" */
+      instagramUrl:
+        "",
+
+      footer:
+        "Menú gastronómico interactivo · 3D + AR",
+
+      /* COLORES DEL RESTAURANTE */
+      colores: {
+        fondo:
+          "#F5F0E8",
+
+        tarjeta:
+          "#FFFDF9",
+
+        texto:
+          "#241F1A",
+
+        acento:
+          "#A64F31",
+
+        acentoOscuro:
+          "#6C2F1C"
+      }
+
+    },
+
+
+    /* =================================================== */
+    /* EVENTOS                                             */
+    /* =================================================== */
+
+    /* Agrega eventos dentro de este arreglo.
+       Si lo dejas vacío, la pestaña mostrará
+       "Próximamente publicaremos nuestros eventos".
+
+       EJEMPLO DE ESTRUCTURA:
+
+       {
+         titulo:"Noche de Jazz",
+         fecha:"Viernes 10 de octubre",
+         hora:"20:00",
+         descripcion:"Música en vivo y menú especial.",
+         imagen:"images/eventos/jazz.jpg",
+         enlace:"",
+         botonTexto:"MÁS INFORMACIÓN"
+       }
+    */
+
+    eventos: [
+      {
+        titulo:"Noche de Jazz",
+        fecha:"Viernes 10 de octubre",
+        hora:"20:00",
+        descripcion:"Música en vivo y menú especial.",
+        imagen:"images/eventos/lofi.jpg",
+        enlace:"https://www.instagram.com/reel/DdruGOGJ_CY/?stkn=dXRtd2VsdmRhZjJv",
+        botonTexto:"MÁS INFORMACIÓN"
+      }
+    ],
+
+    /* CATEGORÍAS */
+    categorias: [
+      "Todos",
+      "Fuertes",
+      "Asiáticos",
+      "Postres",
+      "Bebidas"
+    ],
+
+    /* PLATILLOS */
+    platillos: [
+
+      {
+        id:"burger",
+        categoria:"Fuertes",
+        nombre:"Burger de la Casa",
+        precio:"$165",
+        descripcion:"Hamburguesa de res de estilo clásico con queso, vegetales frescos y acompañamiento.",
+        ingredientes:"Carne de res, pan, queso, lechuga, jitomate, cebolla y guarnición.",
+        alergenos:"Gluten y lácteos.",
+        porcion:"1 pieza",
+        picante:"Sin picante",
+        dieta:"Omnívora",
+        modelo:"models/menu/burguer.glb",
+        imagen:"images/menu/burguer.jpg",
+        badges:["Popular","3D · AR"]
+      },
+
+      {
+        id:"energy",
+        categoria:"Bebidas",
+        nombre:"Energy Drink",
+        precio:"$55",
+        descripcion:"Bebida energética servida fría para acompañar tu elección.",
+        ingredientes:"Bebida energética.",
+        alergenos:"Consultar etiqueta del producto.",
+        porcion:"1 unidad",
+        picante:"No aplica",
+        dieta:"Bebida",
+        modelo:"models/menu/energy_drink.glb",
+        imagen:"images/menu/energy_drink.jpg",
+        badges:["Bebida","3D · AR"]
+      },
+
+      {
+        id:"curry",
+        categoria:"Asiáticos",
+        nombre:"Curry Noodles",
+        precio:"$125",
+        descripcion:"Fideos calientes con notas de curry y especias aromáticas.",
+        ingredientes:"Fideos, caldo de curry, especias y vegetales.",
+        alergenos:"Gluten y soya.",
+        porcion:"1 tazón",
+        picante:"Medio",
+        dieta:"Vegetariana",
+        modelo:"models/menu/curry.glb",
+        imagen:"images/menu/curry.jpg",
+        badges:["Especiado","3D · AR"]
+      },
+
+      {
+        id:"fruit",
+        categoria:"Postres",
+        nombre:"Fruit Cocktail",
+        precio:"$85",
+        descripcion:"Selección fresca y colorida de frutas servidas en una presentación ligera.",
+        ingredientes:"Frutas variadas de temporada.",
+        alergenos:"Sin alérgenos declarados.",
+        porcion:"1 copa",
+        picante:"Sin picante",
+        dieta:"Vegana",
+        modelo:"models/menu/fruit.glb",
+        imagen:"images/menu/fruit.jpg",
+        badges:["Fresco","Vegano","3D · AR"]
+      },
+
+      {
+        id:"ramen",
+        categoria:"Asiáticos",
+        nombre:"Spicy Ramen",
+        precio:"$185",
+        descripcion:"Ramen de caldo intenso y especiado para quienes disfrutan sabores con carácter.",
+        ingredientes:"Fideos, caldo picante, vegetales, huevo, proteína y condimentos.",
+        alergenos:"Gluten, huevo y soya.",
+        porcion:"1 tazón",
+        picante:"Alto 🌶",
+        dieta:"Omnívora",
+        modelo:"models/menu/ramen_web.glb",
+        imagen:"images/menu/ramen.jpg",
+        badges:["Picante","3D · AR"]
+      },
+
+      {
+        id:"vietnam",
+        categoria:"Asiáticos",
+        nombre:"Vietnamese Food",
+        precio:"$175",
+        descripcion:"Platillo inspirado en la cocina vietnamita con sabores frescos y aromáticos.",
+        ingredientes:"Proteína, vegetales, hierbas frescas, salsa y acompañamiento.",
+        alergenos:"Puede contener soya y gluten.",
+        porcion:"1 plato",
+        picante:"Bajo",
+        dieta:"Omnívora",
+        modelo:"models/menu/viet_food_web.glb",
+        imagen:"images/menu/viet_food.jpg",
+        badges:["Recomendado","3D · AR"]
+      }
+
+    ]
+
+  };
+
+  /* ===================================================== */
+  /* FIN DE LA ZONA EDITABLE                               */
+  /* ===================================================== */
+
+  const restaurante = CONFIG.restaurante;
+  const platillos = CONFIG.platillos;
+  const categorias = CONFIG.categorias;
+  const eventos = CONFIG.eventos || [];
+
+  let categoriaActual = "Todos";
+  let platilloActual = platillos[0] || null;
+  let visorARActivo = null;
+  let toastTimer = null;
+
+  /* ===================================================== */
+  /* ELEMENTOS                                              */
+  /* ===================================================== */
+
+  const heroNombre = document.getElementById("heroNombre");
+  const heroSubtitulo = document.getElementById("heroSubtitulo");
+  const heroImagen = document.getElementById("heroImagen");
+  const heroMenu = document.getElementById("heroMenu");
+  const heroInicio = document.getElementById("heroInicio");
+
+  const navMarca = document.getElementById("navMarca");
+  const navInicio = document.getElementById("navInicio");
+  const navMenu = document.getElementById("navMenu");
+  const navEventos = document.getElementById("navEventos");
+  const navUbicacion = document.getElementById("navUbicacion");
+
+  const movilInicio = document.getElementById("movilInicio");
+  const movilMenu = document.getElementById("movilMenu");
+  const movilEventos = document.getElementById("movilEventos");
+  const movilMaps = document.getElementById("movilMaps");
+
+  const vistaInicio = document.getElementById("vistaInicio");
+  const vistaMenu = document.getElementById("vistaMenu");
+  const vistaEventos = document.getElementById("vistaEventos");
+  const eventosGrid = document.getElementById("eventosGrid");
+
+  const inicioTitulo = document.getElementById("inicioTitulo");
+  const inicioHistoria = document.getElementById("inicioHistoria");
+  const inicioContactoTexto = document.getElementById("inicioContactoTexto");
+  const imagenRestaurante = document.getElementById("imagenRestaurante");
+  const historiaFallback = document.getElementById("historiaFallback");
+  const textoUbicacion = document.getElementById("textoUbicacion");
+  const textoHorario = document.getElementById("textoHorario");
+  const contactoHorario = document.getElementById("contactoHorario");
+  const botonMaps = document.getElementById("botonMaps");
+  const botonPedidoInicio = document.getElementById("botonPedidoInicio");
+
+  const categoriasHTML = document.getElementById("categorias");
+  const listaHTML = document.getElementById("listaPlatillos");
+
+  const viewerHost = document.getElementById("viewerHost");
+  const estadoModelo = document.getElementById("estadoModelo");
+
+  const detalleNombre = document.getElementById("detalleNombre");
+  const detallePrecio = document.getElementById("detallePrecio");
+  const detalleDescripcion = document.getElementById("detalleDescripcion");
+  const detalleIngredientes = document.getElementById("detalleIngredientes");
+  const detalleAlergenos = document.getElementById("detalleAlergenos");
+  const detallePorcion = document.getElementById("detallePorcion");
+  const detallePicante = document.getElementById("detallePicante");
+  const detalleDieta = document.getElementById("detalleDieta");
+  const detalleBadges = document.getElementById("detalleBadges");
+
+  const abrirAyudaAR = document.getElementById("abrirAyudaAR");
+  const modalAR = document.getElementById("modalAR");
+  const confirmarAR = document.getElementById("confirmarAR");
+  const cancelarAR = document.getElementById("cancelarAR");
+
+  const instagramFlotante = document.getElementById("instagramFlotante");
+  const whatsappFlotante = document.getElementById("whatsappFlotante");
+  const toast = document.getElementById("toast");
+  const footerTexto = document.getElementById("footerTexto");
+
+  /* ===================================================== */
+  /* IDENTIDAD                                              */
+  /* ===================================================== */
+
+  document.documentElement.style.setProperty("--fondo", restaurante.colores.fondo);
+  document.documentElement.style.setProperty("--tarjeta", restaurante.colores.tarjeta);
+  document.documentElement.style.setProperty("--texto", restaurante.colores.texto);
+  document.documentElement.style.setProperty("--acento", restaurante.colores.acento);
+  document.documentElement.style.setProperty("--acento-oscuro", restaurante.colores.acentoOscuro);
+
+  heroNombre.textContent = restaurante.nombre;
+  heroSubtitulo.textContent = restaurante.subtitulo;
+  navMarca.textContent = restaurante.nombre;
+
+  inicioTitulo.textContent = restaurante.tituloHistoria;
+  inicioHistoria.textContent = restaurante.historia;
+  inicioContactoTexto.textContent = restaurante.contactoTexto;
+  textoUbicacion.textContent = restaurante.ubicacionTexto;
+  textoHorario.textContent = restaurante.horario || "";
+  footerTexto.textContent = restaurante.footer;
+
+  document.title = restaurante.nombre + " | Menú 3D + AR";
+
+  /* FOTOS */
+  function cargarImagenSegura(img, fallback, ruta, alt){
+    if(!ruta){
+      img.style.display = "none";
+      if(fallback) fallback.style.display = "flex";
+      return;
+    }
+
+    img.src = new URL(ruta, document.baseURI).href;
+    img.alt = alt;
+
+    img.addEventListener("load", () => {
+      if(fallback) fallback.style.display = "none";
+    });
+
+    img.addEventListener("error", () => {
+      img.style.display = "none";
+      if(fallback) fallback.style.display = "flex";
+    });
+  }
+
+  cargarImagenSegura(
+    heroImagen,
+    null,
+    restaurante.heroImagen,
+    "Ambiente de " + restaurante.nombre
+  );
+
+  cargarImagenSegura(
+    imagenRestaurante,
+    historiaFallback,
+    restaurante.imagenRestaurante,
+    "Fotografía de " + restaurante.nombre
+  );
+
+  if(!restaurante.horario){
+    contactoHorario.style.display = "none";
+  }
+
+  /* ===================================================== */
+  /* TOAST                                                  */
+  /* ===================================================== */
+
+  function mostrarToast(mensaje){
+    if(toastTimer) clearTimeout(toastTimer);
+
+    toast.textContent = mensaje;
+    toast.classList.add("visible");
+
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("visible");
+    }, 3300);
+  }
+
+  /* ===================================================== */
+  /* CONTACTO                                               */
+  /* ===================================================== */
+
+  function abrirMaps(){
+    if(!restaurante.mapsUrl){
+      mostrarToast("Modo demo: agrega el enlace de Google Maps en la plantilla maestra.");
+      return;
+    }
+
+    window.open(restaurante.mapsUrl,"_blank","noopener,noreferrer");
+  }
+
+
+  function abrirInstagram(){
+    if(!restaurante.instagramUrl){
+      mostrarToast(
+        "Modo demo: agrega el enlace de Instagram en la plantilla maestra."
+      );
+      return;
+    }
+
+    window.open(
+      restaurante.instagramUrl,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
+  function abrirWhatsApp(){
+    const numero = (restaurante.whatsappNumero || "").replace(/[^\d]/g,"");
+
+    if(!numero){
+      mostrarToast("Modo demo: agrega el número de WhatsApp en la plantilla maestra.");
+      return;
+    }
+
+    const complemento =
+      platilloActual
+        ? " Me interesa " + platilloActual.nombre + "."
+        : "";
+
+    const mensaje =
+      restaurante.mensajeWhatsApp + complemento;
+
+    const url =
+      "https://wa.me/" +
+      numero +
+      "?text=" +
+      encodeURIComponent(mensaje);
+
+    window.open(url,"_blank","noopener,noreferrer");
+  }
+
+  botonMaps.addEventListener("click", abrirMaps);
+  navUbicacion.addEventListener("click", abrirMaps);
+  movilMaps.addEventListener("click", abrirMaps);
+
+  botonPedidoInicio.addEventListener("click", abrirWhatsApp);
+  instagramFlotante.addEventListener("click", abrirInstagram);
+  whatsappFlotante.addEventListener("click", abrirWhatsApp);
+
+  /* ===================================================== */
+  /* NAVEGACIÓN                                             */
+  /* ===================================================== */
+
+  function mostrarVista(nombre, actualizarHash = true){
+    const esInicio = nombre === "inicio";
+    const esMenu = nombre === "menu";
+    const esEventos = nombre === "eventos";
+
+    vistaInicio.classList.toggle("activa", esInicio);
+    vistaMenu.classList.toggle("activa", esMenu);
+    vistaEventos.classList.toggle("activa", esEventos);
+
+    navInicio.classList.toggle("activo", esInicio);
+    navMenu.classList.toggle("activo", esMenu);
+    navEventos.classList.toggle("activo", esEventos);
+
+    movilInicio.classList.toggle("activo", esInicio);
+    movilMenu.classList.toggle("activo", esMenu);
+    movilEventos.classList.toggle("activo", esEventos);
+
+    if(actualizarHash){
+      const destino =
+        esInicio
+          ? "#inicio"
+          : esEventos
+            ? "#eventos"
+            : "#menu";
+
+      history.replaceState(null,"",destino);
+    }
+
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  navInicio.addEventListener("click", () => mostrarVista("inicio"));
+  navMenu.addEventListener("click", () => mostrarVista("menu"));
+  navEventos.addEventListener("click", () => mostrarVista("eventos"));
+
+  movilInicio.addEventListener("click", () => mostrarVista("inicio"));
+  movilMenu.addEventListener("click", () => mostrarVista("menu"));
+  movilEventos.addEventListener("click", () => mostrarVista("eventos"));
+
+  heroInicio.addEventListener("click", () => mostrarVista("inicio"));
+  heroMenu.addEventListener("click", () => mostrarVista("menu"));
+
+
+  /* ===================================================== */
+  /* EVENTOS                                               */
+  /* ===================================================== */
+
+  function crearEventos(){
+    eventosGrid.innerHTML = "";
+
+    if(!eventos.length){
+      eventosGrid.innerHTML = `
+        <div class="eventos-vacio">
+          <strong>Próximamente</strong>
+          <span>Publicaremos aquí los próximos eventos del restaurante.</span>
+        </div>
+      `;
+      return;
+    }
+
+    eventos.forEach(evento => {
+      const card = document.createElement("article");
+      card.className = "evento-card";
+
+      const imagenWrap = document.createElement("div");
+      imagenWrap.className = "evento-imagen";
+
+      const fallback = document.createElement("div");
+      fallback.className = "evento-imagen-fallback";
+      fallback.textContent = evento.titulo || "Evento";
+
+      const imagen = document.createElement("img");
+      imagen.loading = "lazy";
+
+      if(evento.imagen){
+        cargarImagenSegura(
+          imagen,
+          fallback,
+          evento.imagen,
+          "Imagen de " + (evento.titulo || "evento")
+        );
+      }
+      else{
+        imagen.style.display = "none";
+      }
+
+      imagenWrap.appendChild(fallback);
+      imagenWrap.appendChild(imagen);
+
+      const contenido = document.createElement("div");
+      contenido.className = "evento-contenido";
+
+      const fecha = evento.fecha || "";
+      const hora = evento.hora || "";
+      const descripcion = evento.descripcion || "";
+
+      contenido.innerHTML = `
+        <p class="evento-fecha">${fecha}</p>
+        <h3>${evento.titulo || "Evento"}</h3>
+        <p class="evento-descripcion">${descripcion}</p>
+        ${hora ? `<div class="evento-meta"><span>${hora}</span></div>` : ""}
+      `;
+
+      if(evento.enlace){
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.className = "evento-boton";
+        boton.textContent = evento.botonTexto || "MÁS INFORMACIÓN";
+
+        boton.addEventListener("click", () => {
+          window.open(
+            evento.enlace,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        });
+
+        contenido.appendChild(boton);
+      }
+
+      card.appendChild(imagenWrap);
+      card.appendChild(contenido);
+      eventosGrid.appendChild(card);
+    });
+  }
+
+  /* ===================================================== */
+  /* CATEGORÍAS                                             */
+  /* ===================================================== */
+
+  function obtenerPlatillos(){
+    if(categoriaActual === "Todos"){
+      return platillos;
+    }
+
+    return platillos.filter(
+      item => item.categoria === categoriaActual
+    );
+  }
+
+  function crearCategorias(){
+    categoriasHTML.innerHTML = "";
+
+    categorias.forEach(categoria => {
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.className = "categoria";
+      boton.textContent = categoria;
+
+      if(categoria === categoriaActual){
+        boton.classList.add("activa");
+      }
+
+      boton.addEventListener("click", () => {
+        categoriaActual = categoria;
+
+        const visibles = obtenerPlatillos();
+
+        if(
+          visibles.length > 0 &&
+          (
+            !platilloActual ||
+            !visibles.some(item => item.id === platilloActual.id)
+          )
+        ){
+          platilloActual = visibles[0];
+          cargarPlatillo(platilloActual);
+        }
+
+        crearCategorias();
+        crearLista();
+      });
+
+      categoriasHTML.appendChild(boton);
+    });
+  }
+
+  /* ===================================================== */
+  /* TARJETAS                                               */
+  /* ===================================================== */
+
+  function crearLista(){
+    const visibles = obtenerPlatillos();
+    listaHTML.innerHTML = "";
+
+    visibles.forEach(item => {
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.className = "platillo";
+
+      if(platilloActual && item.id === platilloActual.id){
+        boton.classList.add("activo");
+      }
+
+      const visual = document.createElement("div");
+      visual.className = "platillo-visual";
+
+      const fallback = document.createElement("div");
+      fallback.className = "foto-fallback";
+      fallback.textContent = "Fotografía de " + item.nombre;
+
+      const imagen = document.createElement("img");
+      imagen.loading = "lazy";
+
+      cargarImagenSegura(
+        imagen,
+        fallback,
+        item.imagen,
+        "Fotografía de " + item.nombre
+      );
+
+      const distintivo = document.createElement("span");
+      distintivo.className = "distintivo";
+      distintivo.textContent = "3D · AR";
+
+      const titulo = document.createElement("div");
+      titulo.className = "foto-titulo";
+      titulo.innerHTML = `
+        <strong>${item.nombre}</strong>
+        <span>${item.precio}</span>
+      `;
+
+      visual.appendChild(fallback);
+      visual.appendChild(imagen);
+      visual.appendChild(distintivo);
+      visual.appendChild(titulo);
+
+      const info = document.createElement("div");
+      info.className = "platillo-info";
+      info.innerHTML = `
+        <p class="platillo-descripcion">
+          ${item.descripcion}
+        </p>
+      `;
+
+      boton.appendChild(visual);
+      boton.appendChild(info);
+
+      boton.addEventListener("click", () => {
+        platilloActual = item;
+        cargarPlatillo(item);
+        crearLista();
+
+        if(window.innerWidth <= 1000){
+          detallePlatillo.scrollIntoView({
+            behavior:"smooth",
+            block:"start"
+          });
+        }
+      });
+
+      listaHTML.appendChild(boton);
+    });
+  }
+
+  /* ===================================================== */
+  /* VISOR 3D                                               */
+  /* ===================================================== */
+
+  function crearVisor(item){
+    viewerHost.innerHTML = "";
+
+    abrirAyudaAR.disabled = true;
+    visorARActivo = null;
+
+    estadoModelo.classList.remove("error");
+    estadoModelo.style.display = "block";
+    estadoModelo.innerHTML =
+      '<div class="loader"></div>Cargando modelo 3D...';
+
+    const urlModelo =
+      new URL(item.modelo,document.baseURI).href;
+
+    const visor =
+      document.createElement("model-viewer");
+
+    visor.src = urlModelo;
+    visor.alt = "Modelo 3D de " + item.nombre;
+
+    /* VISOR WEB:
+       1 dedo = girar
+       2 dedos = mover */
+    visor.setAttribute("camera-controls","");
+    visor.setAttribute("touch-action","pan-y");
+    visor.setAttribute("auto-rotate","");
+    visor.setAttribute("shadow-intensity","1");
+    visor.setAttribute("shadow-softness","0.9");
+    visor.setAttribute("environment-image","neutral");
+    visor.setAttribute("exposure","1");
+    visor.setAttribute("loading","eager");
+
+    /* REALIDAD AUMENTADA */
+    visor.setAttribute("ar","");
+    visor.setAttribute("ar-modes","webxr scene-viewer quick-look");
+    visor.setAttribute("ar-placement","floor");
+    visor.setAttribute("ar-scale","fixed");
+
+    const botonARInterno =
+      document.createElement("button");
+
+    botonARInterno.type = "button";
+    botonARInterno.slot = "ar-button";
+    botonARInterno.hidden = true;
+    botonARInterno.setAttribute("aria-hidden","true");
+
+    visor.appendChild(botonARInterno);
+
+    visor.addEventListener("load", () => {
+      estadoModelo.style.display = "none";
+      visorARActivo = visor;
+      abrirAyudaAR.disabled = false;
+    });
+
+    visor.addEventListener("error", () => {
+      estadoModelo.style.display = "block";
+      estadoModelo.classList.add("error");
+      estadoModelo.textContent =
+        "No se pudo cargar el modelo 3D: " + item.modelo;
+
+      abrirAyudaAR.disabled = true;
+        visorARActivo = null;
+    });
+
+    viewerHost.appendChild(visor);
+  }
+
+  /* ===================================================== */
+  /* FICHA                                                  */
+  /* ===================================================== */
+
+  function cargarPlatillo(item){
+    detalleNombre.textContent = item.nombre;
+    detallePrecio.textContent = item.precio;
+    detalleDescripcion.textContent = item.descripcion;
+    detalleIngredientes.textContent = item.ingredientes;
+    detalleAlergenos.textContent = item.alergenos;
+    detallePorcion.textContent = item.porcion;
+    detallePicante.textContent = item.picante;
+    detalleDieta.textContent = item.dieta;
+
+    detalleBadges.innerHTML = "";
+
+    item.badges.forEach(texto => {
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = texto;
+      detalleBadges.appendChild(badge);
+    });
+
+    crearVisor(item);
+
+    document.title =
+      restaurante.nombre + " | " + item.nombre;
+  }
+
+  /* ===================================================== */
+  /* AR                                                     */
+  /* ===================================================== */
+
+  function abrirGuiaAR(){
+    if(!visorARActivo){
+      return;
+    }
+
+    modalAR.classList.add("abierto");
+    modalAR.setAttribute("aria-hidden","false");
+    document.body.classList.add("modal-abierto");
+    confirmarAR.focus();
+  }
+
+  function cerrarGuiaAR(){
+    modalAR.classList.remove("abierto");
+    modalAR.setAttribute("aria-hidden","true");
+    document.body.classList.remove("modal-abierto");
+  }
+
+  abrirAyudaAR.addEventListener("click", abrirGuiaAR);
+
+  cancelarAR.addEventListener("click", cerrarGuiaAR);
+
+  modalAR.addEventListener("click", event => {
+    if(event.target === modalAR){
+      cerrarGuiaAR();
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if(
+      event.key === "Escape" &&
+      modalAR.classList.contains("abierto")
+    ){
+      cerrarGuiaAR();
+    }
+  });
+
+  confirmarAR.addEventListener("click", () => {
+    if(!visorARActivo){
+      return;
+    }
+
+    cerrarGuiaAR();
+
+    try{
+      const resultado = visorARActivo.activateAR();
+
+      if(
+        resultado &&
+        typeof resultado.catch === "function"
+      ){
+        resultado.catch(() => {
+          mostrarToast(
+            "No fue posible abrir la realidad aumentada en este dispositivo."
+          );
+        });
+      }
+    }
+    catch(error){
+      mostrarToast(
+        "No fue posible abrir la realidad aumentada en este dispositivo."
+      );
+    }
+  });
+
+  /* ===================================================== */
+  /* RUTA INICIAL                                           */
+  /* ===================================================== */
+
+  function iniciarRuta(){
+    const hash = window.location.hash.toLowerCase();
+
+    if(hash === "#inicio"){
+      mostrarVista("inicio",false);
+    }
+    else if(hash === "#eventos"){
+      mostrarVista("eventos",false);
+    }
+    else{
+      mostrarVista("menu",false);
+    }
+  }
+
+  window.addEventListener("hashchange",iniciarRuta);
+
+  /* ===================================================== */
+  /* INICIAR                                                */
+  /* ===================================================== */
+
+  crearCategorias();
+  crearLista();
+  crearEventos();
+
+  if(platilloActual){
+    cargarPlatillo(platilloActual);
+  }
+
+  iniciarRuta();
+
+</script>
+
+</body>
+</html>

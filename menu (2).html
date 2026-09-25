@@ -1,0 +1,3004 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F4EFE7">
+  <title>Menú 3D + AR</title>
+
+  <!-- ===================================================== -->
+  <!-- NO EDITAR: SOPORTE PARA GLB + MESHOPT                -->
+  <!-- ===================================================== -->
+  <script>
+    self.ModelViewerElement = self.ModelViewerElement || {};
+    self.ModelViewerElement.meshoptDecoderLocation =
+      "https://cdn.jsdelivr.net/npm/meshoptimizer/meshopt_decoder.js";
+  </script>
+
+  <script
+    type="module"
+    src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.3.1/model-viewer.min.js">
+  </script>
+
+  <style>
+    :root{
+      --fondo:#F4EFE7;
+      --tarjeta:#FFFDF9;
+      --texto:#27221E;
+      --texto-secundario:#746A61;
+      --acento:#A44F32;
+      --acento-oscuro:#73331F;
+      --olivo:#66704A;
+      --linea:#DDD1C4;
+      --whatsapp:#25D366;
+      --sombra:0 12px 34px rgba(43,32,23,.08);
+    }
+
+    *{box-sizing:border-box}
+
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      background:var(--fondo);
+      color:var(--texto);
+      font-family:Arial,Helvetica,sans-serif;
+    }
+
+    button,
+    a{
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    button:focus-visible,
+    a:focus-visible{
+      outline:3px solid rgba(164,79,50,.28);
+      outline-offset:3px;
+    }
+
+    /* ===================================================== */
+    /* PORTADA                                                */
+    /* ===================================================== */
+
+    .hero{
+      padding:46px 20px 40px;
+      text-align:center;
+      color:#fff;
+      background:
+        radial-gradient(circle at top left,rgba(255,255,255,.12),transparent 40%),
+        linear-gradient(135deg,var(--acento),var(--acento-oscuro));
+    }
+
+    .hero-etiqueta{
+      display:inline-block;
+      padding:8px 13px;
+      margin-bottom:18px;
+      border:1px solid rgba(255,255,255,.35);
+      border-radius:999px;
+      font-size:11px;
+      font-weight:bold;
+      letter-spacing:1.4px;
+    }
+
+    .hero h1{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(38px,8vw,72px);
+      font-weight:normal;
+      line-height:1;
+    }
+
+    .hero-subtitulo{
+      max-width:650px;
+      margin:17px auto 0;
+      font-size:15px;
+      line-height:1.7;
+      color:rgba(255,255,255,.9);
+    }
+
+    /* ===================================================== */
+    /* NAVEGACIÓN PRINCIPAL                                   */
+    /* ===================================================== */
+
+    .nav-principal-wrap{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(244,239,231,.94);
+      border-bottom:1px solid rgba(221,209,196,.85);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
+    .nav-principal{
+      width:min(1280px,100%);
+      margin:0 auto;
+      padding:10px 18px;
+      display:flex;
+      justify-content:center;
+      gap:8px;
+    }
+
+    .nav-principal button{
+      min-height:44px;
+      padding:10px 20px;
+      border:1px solid var(--linea);
+      border-radius:999px;
+      background:var(--tarjeta);
+      color:var(--texto);
+      font-size:12px;
+      font-weight:bold;
+      letter-spacing:.5px;
+      cursor:pointer;
+    }
+
+    .nav-principal button.activo{
+      background:var(--texto);
+      color:#fff;
+      border-color:var(--texto);
+    }
+
+    /* ===================================================== */
+    /* CONTENIDO GENERAL                                      */
+    /* ===================================================== */
+
+    .contenedor{
+      width:min(1280px,100%);
+      margin:0 auto;
+      padding:28px 18px 50px;
+    }
+
+    .vista{display:none}
+    .vista.activa{display:block}
+
+    /* ===================================================== */
+    /* INICIO                                                 */
+    /* ===================================================== */
+
+    .inicio-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .inicio-principal,
+    .inicio-contacto{
+      background:var(--tarjeta);
+      border:1px solid var(--linea);
+      border-radius:24px;
+      box-shadow:var(--sombra);
+    }
+
+    .inicio-principal{overflow:hidden}
+
+    .inicio-imagen{
+      position:relative;
+      min-height:290px;
+      overflow:hidden;
+      background:linear-gradient(135deg,#8D4A30,#C18456);
+    }
+
+    .inicio-imagen img{
+      width:100%;
+      height:100%;
+      min-height:290px;
+      object-fit:cover;
+      display:block;
+    }
+
+    .inicio-imagen-fallback{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px;
+      text-align:center;
+      color:rgba(255,255,255,.88);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:24px;
+      line-height:1.3;
+    }
+
+    .inicio-texto{padding:28px}
+
+    .sobre-etiqueta{
+      margin:0 0 9px;
+      color:var(--acento);
+      font-size:11px;
+      font-weight:bold;
+      letter-spacing:1.4px;
+    }
+
+    .inicio-texto h2,
+    .inicio-contacto h2{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-weight:normal;
+      font-size:clamp(30px,4vw,42px);
+      line-height:1.12;
+    }
+
+    .inicio-texto p{
+      margin:15px 0 0;
+      color:var(--texto-secundario);
+      font-size:15px;
+      line-height:1.8;
+    }
+
+    .inicio-contacto{
+      padding:27px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:24px;
+    }
+
+    .contacto-copy p{
+      margin:13px 0 0;
+      color:var(--texto-secundario);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .contacto-datos{
+      display:grid;
+      gap:11px;
+    }
+
+    .contacto-item{
+      padding:13px 14px;
+      border:1px solid #E8DDD1;
+      border-radius:14px;
+      background:#FAF7F2;
+    }
+
+    .contacto-item strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:11px;
+      letter-spacing:.8px;
+      color:#76685D;
+    }
+
+    .contacto-item span{
+      font-size:13px;
+      line-height:1.5;
+      color:#403831;
+    }
+
+    .contacto-acciones{
+      display:grid;
+      gap:10px;
+    }
+
+    .boton-contacto{
+      min-height:48px;
+      padding:13px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      border:0;
+      border-radius:13px;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .boton-maps{
+      background:var(--texto);
+      color:#fff;
+    }
+
+    /* ===================================================== */
+    /* MENÚ                                                   */
+    /* ===================================================== */
+
+    .intro{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:30px;
+      margin-bottom:24px;
+    }
+
+    .intro h2{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:34px;
+      font-weight:normal;
+    }
+
+    .intro p{
+      max-width:560px;
+      margin:8px 0 0;
+      color:var(--texto-secundario);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .leyenda-ar{
+      flex-shrink:0;
+      padding:10px 14px;
+      background:#E9E4D7;
+      color:var(--olivo);
+      border-radius:999px;
+      font-size:11px;
+      font-weight:bold;
+      letter-spacing:.6px;
+    }
+
+    .categorias{
+      display:flex;
+      gap:9px;
+      overflow-x:auto;
+      padding:3px 0 18px;
+      scrollbar-width:none;
+    }
+
+    .categorias::-webkit-scrollbar{display:none}
+
+    .categoria{
+      flex:0 0 auto;
+      min-height:44px;
+      padding:10px 17px;
+      border:1px solid var(--linea);
+      border-radius:999px;
+      background:var(--tarjeta);
+      color:var(--texto);
+      font-size:13px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .categoria.activa{
+      background:var(--texto);
+      color:#fff;
+      border-color:var(--texto);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:390px minmax(0,1fr);
+      gap:22px;
+      align-items:start;
+    }
+
+    /* ===================================================== */
+    /* TARJETAS CON FOTO                                      */
+    /* ===================================================== */
+
+    .lista{
+      display:grid;
+      gap:14px;
+    }
+
+    .platillo{
+      width:100%;
+      padding:0;
+      overflow:hidden;
+      text-align:left;
+      background:var(--tarjeta);
+      border:1px solid var(--linea);
+      border-radius:18px;
+      box-shadow:0 5px 18px rgba(50,40,30,.04);
+      cursor:pointer;
+      transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+    }
+
+    .platillo:hover{
+      transform:translateY(-2px);
+      box-shadow:var(--sombra);
+    }
+
+    .platillo.activo{
+      border-color:var(--acento);
+      box-shadow:0 10px 28px rgba(164,79,50,.14);
+    }
+
+    .platillo-visual{
+      height:185px;
+      position:relative;
+      overflow:hidden;
+      background:#E9E0D5;
+    }
+
+    .platillo-visual img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      transition:transform .25s ease;
+    }
+
+    .platillo:hover .platillo-visual img{
+      transform:scale(1.025);
+    }
+
+    .foto-fallback{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:linear-gradient(135deg,#DDD0C2,#EEE6DD);
+      color:#786C62;
+      text-align:center;
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .distintivo{
+      position:absolute;
+      top:12px;
+      right:12px;
+      z-index:3;
+      padding:6px 9px;
+      background:rgba(255,255,255,.93);
+      color:var(--acento-oscuro);
+      border-radius:999px;
+      font-size:10px;
+      font-weight:bold;
+      letter-spacing:.7px;
+      box-shadow:0 4px 14px rgba(0,0,0,.08);
+    }
+
+    .platillo-info{padding:15px}
+
+    .fila-nombre{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+    }
+
+    .platillo-nombre{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:20px;
+      line-height:1.25;
+    }
+
+    .precio{
+      color:var(--acento);
+      font-size:17px;
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    .platillo-descripcion{
+      margin:9px 0 0;
+      color:var(--texto-secundario);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    /* ===================================================== */
+    /* DETALLE                                                */
+    /* ===================================================== */
+
+    .detalle{
+      position:sticky;
+      top:74px;
+      overflow:hidden;
+      background:var(--tarjeta);
+      border:1px solid var(--linea);
+      border-radius:24px;
+      box-shadow:var(--sombra);
+    }
+
+    .detalle-cabecera{
+      padding:26px 26px 18px;
+    }
+
+    .detalle-titulo-precio{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:24px;
+    }
+
+    #detalleNombre{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(30px,4vw,44px);
+      font-weight:normal;
+      line-height:1.08;
+    }
+
+    #detallePrecio{
+      color:var(--acento);
+      font-size:26px;
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    #detalleDescripcion{
+      margin:12px 0 0;
+      color:var(--texto-secundario);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:16px;
+    }
+
+    .badge{
+      padding:7px 10px;
+      border-radius:999px;
+      background:#F0E9DF;
+      color:#65594F;
+      font-size:11px;
+      font-weight:bold;
+    }
+
+    /* ===================================================== */
+    /* VISOR 3D                                               */
+    /* ===================================================== */
+
+    .visor-contenedor{padding:0 26px}
+
+    .visor{
+      position:relative;
+      min-height:500px;
+      overflow:hidden;
+      border:1px solid var(--linea);
+      border-radius:20px;
+      background:radial-gradient(circle at top,#FFFDF9,#E8DFD4);
+    }
+
+    #viewerHost{
+      width:100%;
+      min-height:500px;
+    }
+
+    model-viewer{
+      display:block;
+      width:100%;
+      height:500px;
+      background:transparent;
+    }
+
+    .estado-modelo{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      z-index:10;
+      width:80%;
+      padding:12px;
+      text-align:center;
+      color:var(--texto-secundario);
+      font-size:13px;
+      pointer-events:none;
+    }
+
+    .estado-modelo.error{
+      color:#912F25;
+      background:rgba(255,255,255,.92);
+      border-radius:10px;
+    }
+
+    .instruccion{
+      text-align:center;
+      margin:11px 0 0;
+      color:var(--texto-secundario);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .instruccion strong{color:#4E453E}
+
+    /* ===================================================== */
+    /* AR                                                     */
+    /* ===================================================== */
+
+    .acciones-ar{
+      display:flex;
+      justify-content:center;
+      margin:14px 0 0;
+    }
+
+    .boton-ar-principal{
+      width:min(100%,360px);
+      min-height:50px;
+      padding:14px 20px;
+      border:none;
+      border-radius:13px;
+      background:var(--acento);
+      color:#fff;
+      font-size:14px;
+      font-weight:bold;
+      letter-spacing:.35px;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(164,79,50,.24);
+    }
+
+    .boton-ar-principal:disabled{
+      opacity:.48;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    .modal-ar{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      padding:18px;
+      background:rgba(22,18,15,.64);
+      backdrop-filter:blur(5px);
+      -webkit-backdrop-filter:blur(5px);
+      align-items:center;
+      justify-content:center;
+    }
+
+    .modal-ar.abierto{display:flex}
+
+    .modal-ar-card{
+      width:min(100%,460px);
+      max-height:90vh;
+      overflow:auto;
+      padding:24px 20px 20px;
+      border-radius:22px;
+      background:#FFFDF9;
+      color:var(--texto);
+      box-shadow:0 22px 70px rgba(0,0,0,.28);
+      text-align:center;
+    }
+
+    .modal-ar-etiqueta{
+      margin:0 0 7px;
+      color:var(--acento);
+      font-size:11px;
+      font-weight:bold;
+      letter-spacing:1.3px;
+    }
+
+    .modal-ar-card h3{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:30px;
+      font-weight:normal;
+      line-height:1.1;
+    }
+
+    .modal-ar-intro{
+      margin:9px auto 17px;
+      max-width:360px;
+      color:var(--texto-secundario);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .gestos-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin:0 0 12px;
+    }
+
+    .gesto{
+      min-width:0;
+      padding:16px 10px 14px;
+      border:1px solid var(--linea);
+      border-radius:16px;
+      background:#F8F3EC;
+    }
+
+    .gesto-icono{
+      display:block;
+      margin-bottom:7px;
+      font-size:31px;
+      line-height:1;
+    }
+
+    .gesto strong{
+      display:block;
+      margin-bottom:4px;
+      color:var(--texto);
+      font-size:12px;
+    }
+
+    .gesto span{
+      display:block;
+      color:var(--texto-secundario);
+      font-size:11px;
+      line-height:1.4;
+    }
+
+    .nota-gestos{
+      margin:10px auto 16px;
+      color:#8B7E73;
+      font-size:10px;
+      line-height:1.4;
+    }
+
+    .modal-ar-acciones{
+      display:grid;
+      gap:9px;
+    }
+
+    .modal-ar-abrir{
+      min-height:50px;
+      border:none;
+      border-radius:13px;
+      background:var(--acento);
+      color:#fff;
+      font-size:14px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .modal-ar-cancelar{
+      min-height:44px;
+      border:1px solid var(--linea);
+      border-radius:13px;
+      background:transparent;
+      color:var(--texto-secundario);
+      font-size:13px;
+      cursor:pointer;
+    }
+
+    /* ===================================================== */
+    /* INFORMACIÓN                                            */
+    /* ===================================================== */
+
+    .informacion{
+      padding:8px 26px 28px;
+    }
+
+    .bloque-info{
+      padding-top:17px;
+      margin-top:17px;
+      border-top:1px solid #E9E0D6;
+    }
+
+    .bloque-info h3{
+      margin:0 0 8px;
+      color:#817369;
+      font-size:10px;
+      letter-spacing:1.4px;
+    }
+
+    .bloque-info p{
+      margin:0;
+      color:#473E37;
+      font-size:14px;
+      line-height:1.65;
+    }
+
+    .datos-secundarios{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:0 28px;
+    }
+
+    /* ===================================================== */
+    /* WHATSAPP MINI                                         */
+    /* ===================================================== */
+
+    .whatsapp-flotante{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      z-index:500;
+      width:50px;
+      height:50px;
+      padding:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:0;
+      border-radius:50%;
+      background:var(--whatsapp);
+      box-shadow:0 10px 24px rgba(0,0,0,.2);
+      cursor:pointer;
+    }
+
+    .whatsapp-flotante svg{
+      width:27px;
+      height:27px;
+      fill:none;
+      stroke:#fff;
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    /* ===================================================== */
+    /* TOAST                                                  */
+    /* ===================================================== */
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:80px;
+      z-index:10000;
+      width:min(calc(100% - 32px),430px);
+      padding:12px 15px;
+      transform:translate(-50%,14px);
+      opacity:0;
+      pointer-events:none;
+      border-radius:13px;
+      background:#27221E;
+      color:#fff;
+      font-size:12px;
+      line-height:1.5;
+      text-align:center;
+      transition:opacity .2s ease,transform .2s ease;
+      box-shadow:0 12px 28px rgba(0,0,0,.2);
+    }
+
+    .toast.visible{
+      opacity:1;
+      transform:translate(-50%,0);
+    }
+
+    footer{
+      padding:20px 15px 82px;
+      text-align:center;
+      color:#8A7E74;
+      font-size:11px;
+      line-height:1.7;
+    }
+
+    @media (max-width:960px){
+      .inicio-grid{grid-template-columns:1fr}
+      .layout{grid-template-columns:1fr}
+      .detalle{position:static}
+      .lista{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width:640px){
+      .hero{padding:38px 18px 34px}
+
+      .nav-principal{
+        padding:9px 11px;
+      }
+
+      .nav-principal button{flex:1}
+
+      .contenedor{
+        padding:22px 11px 40px;
+      }
+
+      .intro{display:block}
+
+      .leyenda-ar{
+        display:inline-block;
+        margin-top:15px;
+      }
+
+      .lista{grid-template-columns:1fr}
+
+      .platillo-visual{height:205px}
+
+      .detalle-titulo-precio{display:block}
+
+      #detallePrecio{margin-top:8px}
+
+      .visor-contenedor{padding:0 12px}
+
+      .visor,
+      #viewerHost{min-height:390px}
+
+      model-viewer{height:390px}
+
+      .datos-secundarios{grid-template-columns:1fr}
+
+      .gestos-grid{grid-template-columns:1fr 1fr}
+
+      .modal-ar-card{
+        padding:22px 15px 16px;
+      }
+
+      .whatsapp-flotante{
+        width:46px;
+        height:46px;
+        right:12px;
+        bottom:12px;
+      }
+
+      .whatsapp-flotante svg{
+        width:24px;
+        height:24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="hero">
+  <div class="hero-etiqueta">MENÚ INTERACTIVO · 3D + AR</div>
+
+  <h1 id="heroNombre">Restaurante</h1>
+
+  <p
+    class="hero-subtitulo"
+    id="heroSubtitulo">
+  </p>
+</header>
+
+<div class="nav-principal-wrap">
+  <nav class="nav-principal" aria-label="Navegación principal">
+
+    <button
+      type="button"
+      id="navInicio">
+      INICIO
+    </button>
+
+    <button
+      type="button"
+      id="navMenu"
+      class="activo">
+      MENÚ
+    </button>
+
+  </nav>
+</div>
+
+<main class="contenedor">
+
+  <!-- =================================================== -->
+  <!-- INICIO                                               -->
+  <!-- =================================================== -->
+
+  <section
+    class="vista"
+    id="vistaInicio">
+
+    <div class="inicio-grid">
+
+      <article class="inicio-principal">
+
+        <div class="inicio-imagen">
+
+          <div
+            class="inicio-imagen-fallback"
+            id="inicioImagenFallback">
+            Fotografía del restaurante
+          </div>
+
+          <img
+            id="imagenRestaurante"
+            alt="Fotografía del restaurante"
+            loading="lazy">
+
+        </div>
+
+        <div class="inicio-texto">
+
+          <p class="sobre-etiqueta">
+            SOBRE NOSOTROS
+          </p>
+
+          <h2 id="inicioTitulo">
+          </h2>
+
+          <p id="inicioHistoria">
+          </p>
+
+        </div>
+
+      </article>
+
+      <aside class="inicio-contacto">
+
+        <div class="contacto-copy">
+
+          <p class="sobre-etiqueta">
+            VISÍTANOS
+          </p>
+
+          <h2>
+            Ubicación y pedidos
+          </h2>
+
+          <p id="inicioContactoTexto">
+          </p>
+
+        </div>
+
+        <div class="contacto-datos">
+
+          <div
+            class="contacto-item"
+            id="bloqueUbicacion">
+
+            <strong>
+              UBICACIÓN
+            </strong>
+
+            <span id="textoUbicacion">
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="contacto-acciones">
+
+          <button
+            type="button"
+            class="boton-contacto boton-maps"
+            id="botonMaps">
+
+            📍 VER UBICACIÓN EN GOOGLE MAPS
+
+          </button>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+  </section>
+
+  <!-- =================================================== -->
+  <!-- MENÚ                                                 -->
+  <!-- =================================================== -->
+
+  <section
+    class="vista activa"
+    id="vistaMenu">
+
+    <section class="intro">
+
+      <div>
+
+        <h2>
+          Nuestro menú
+        </h2>
+
+        <p>
+          Selecciona un platillo para conocerlo, explorarlo en 3D
+          y visualizarlo en realidad aumentada.
+        </p>
+
+      </div>
+
+      <div class="leyenda-ar">
+        ◆ DISPONIBLE EN 3D + AR
+      </div>
+
+    </section>
+
+    <nav
+      class="categorias"
+      id="categorias"
+      aria-label="Categorías del menú">
+    </nav>
+
+    <div class="layout">
+
+      <section
+        class="lista"
+        id="listaPlatillos"
+        aria-label="Platillos">
+      </section>
+
+      <article
+        class="detalle"
+        id="detallePlatillo">
+
+        <div class="detalle-cabecera">
+
+          <div class="detalle-titulo-precio">
+
+            <h2 id="detalleNombre">
+            </h2>
+
+            <div id="detallePrecio">
+            </div>
+
+          </div>
+
+          <p id="detalleDescripcion">
+          </p>
+
+          <div
+            class="badges"
+            id="detalleBadges">
+          </div>
+
+        </div>
+
+        <div class="visor-contenedor">
+
+          <div class="visor">
+
+            <div id="viewerHost">
+            </div>
+
+            <div
+              class="estado-modelo"
+              id="estadoModelo">
+
+              Cargando modelo 3D...
+
+            </div>
+
+          </div>
+
+          <!--
+            VISOR 3D DE LA PÁGINA:
+            1 dedo = girar
+            2 dedos = mover
+          -->
+          <p class="instruccion">
+            <strong>Visor 3D:</strong>
+            1 dedo para girar · 2 dedos para mover
+          </p>
+
+          <div class="acciones-ar">
+
+            <button
+              type="button"
+              class="boton-ar-principal"
+              id="abrirAyudaAR"
+              disabled>
+
+              VER EN TU MESA
+
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="informacion">
+
+          <section class="bloque-info">
+
+            <h3>
+              INGREDIENTES PRINCIPALES
+            </h3>
+
+            <p id="detalleIngredientes">
+            </p>
+
+          </section>
+
+          <div class="datos-secundarios">
+
+            <section class="bloque-info">
+
+              <h3>
+                ALÉRGENOS
+              </h3>
+
+              <p id="detalleAlergenos">
+              </p>
+
+            </section>
+
+            <section class="bloque-info">
+
+              <h3>
+                PORCIÓN
+              </h3>
+
+              <p id="detallePorcion">
+              </p>
+
+            </section>
+
+            <section class="bloque-info">
+
+              <h3>
+                PICANTE
+              </h3>
+
+              <p id="detallePicante">
+              </p>
+
+            </section>
+
+            <section class="bloque-info">
+
+              <h3>
+                TIPO DE DIETA
+              </h3>
+
+              <p id="detalleDieta">
+              </p>
+
+            </section>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ===================================================== -->
+<!-- GUÍA PARA REALIDAD AUMENTADA                         -->
+<!-- ===================================================== -->
+
+<div
+  class="modal-ar"
+  id="modalAR"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modalARTitulo"
+  aria-hidden="true">
+
+  <div class="modal-ar-card">
+
+    <p class="modal-ar-etiqueta">
+      EN REALIDAD AUMENTADA
+    </p>
+
+    <h3 id="modalARTitulo">
+      Colócalo sobre tu mesa
+    </h3>
+
+    <p class="modal-ar-intro">
+      Cuando aparezca el platillo, usa estos gestos.
+    </p>
+
+    <div class="gestos-grid">
+
+      <!--
+        INSTRUCCIÓN AR SOBRE LA MESA:
+        AR = 1 dedo mueve
+        AR = 2 dedos gira
+      -->
+
+      <div class="gesto">
+
+        <span class="gesto-icono">
+          ☝️
+        </span>
+
+        <strong>
+          1 dedo
+        </strong>
+
+        <span>
+          Desliza para mover el platillo
+        </span>
+
+      </div>
+
+      <div class="gesto">
+
+        <span class="gesto-icono">
+          ✌️
+        </span>
+
+        <strong>
+          2 dedos
+        </strong>
+
+        <span>
+          Desliza para girar el platillo
+        </span>
+
+      </div>
+
+    </div>
+
+    <p class="nota-gestos">
+      Algunos controles pueden variar ligeramente según el visor AR del dispositivo.
+    </p>
+
+    <div class="modal-ar-acciones">
+
+      <button
+        type="button"
+        class="modal-ar-abrir"
+        id="confirmarAR">
+
+        ENTENDIDO · ABRIR AR
+
+      </button>
+
+      <button
+        type="button"
+        class="modal-ar-cancelar"
+        id="cancelarAR">
+
+        VOLVER
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- WHATSAPP: BOTÓN PEQUEÑO, SOLO ICONO                  -->
+<!-- ===================================================== -->
+
+<button
+  type="button"
+  class="whatsapp-flotante"
+  id="whatsappFlotante"
+  aria-label="Hacer pedido por WhatsApp"
+  title="Pedidos por WhatsApp">
+
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true">
+
+    <path
+      d="M20 11.7a8 8 0 0 1-11.8 7L4 20l1.3-4A8 8 0 1 1 20 11.7Z">
+    </path>
+
+    <path
+      d="M9.2 8.1c.4-.3.8-.1 1 .3l.7 1.5c.1.3.1.6-.1.8l-.6.7c.7 1.4 1.8 2.4 3.2 3l.7-.8c.2-.2.5-.3.8-.1l1.5.7c.4.2.5.6.3 1-.4.8-1.2 1.3-2.1 1.2-3.6-.5-6.5-3.3-7-6.9-.1-.7.5-1.2 1.6-1.4Z">
+    </path>
+
+  </svg>
+
+</button>
+
+<div
+  class="toast"
+  id="toast"
+  role="status"
+  aria-live="polite">
+</div>
+
+<footer id="footerTexto">
+</footer>
+
+<script>
+
+  /* ===================================================== */
+  /* ===================================================== */
+  /*                                                       */
+  /*           ★★★ PLANTILLA MAESTRA ★★★                 */
+  /*                                                       */
+  /*      EDITAR ÚNICAMENTE ESTA ZONA PARA CADA            */
+  /*      RESTAURANTE Y SUS PLATILLOS.                     */
+  /*                                                       */
+  /* ===================================================== */
+  /* ===================================================== */
+
+
+  const CONFIG = {
+
+
+    /* =================================================== */
+    /* 1. IDENTIDAD DEL RESTAURANTE                        */
+    /* =================================================== */
+
+    restaurante: {
+
+      /* EDITAR: nombre visible */
+      nombre:
+        "Casa Mezquite",
+
+      /* EDITAR: subtítulo de portada */
+      subtitulo:
+        "Cocina contemporánea para explorar antes de ordenar. Descubre nuestros platillos en 3D y visualízalos directamente sobre tu mesa.",
+
+      /* EDITAR: título de la sección Inicio */
+      tituloHistoria:
+        "Cocina cercana, sabores con carácter",
+
+      /* EDITAR: historia / presentación */
+      historia:
+        "Casa Mezquite es un concepto gastronómico contemporáneo que reúne recetas reconfortantes, ingredientes reconocibles y una presentación cuidada. La experiencia digital permite conocer cada platillo antes de ordenar y visualizarlo en realidad aumentada directamente sobre la mesa.",
+
+      /* EDITAR: fotografía general del restaurante */
+      imagenRestaurante:
+        "images/restaurante/casa_mezquite.jpg",
+
+      /* EDITAR: texto breve de contacto */
+      contactoTexto:
+        "Consulta nuestra ubicación o inicia un pedido para llevar directamente por WhatsApp.",
+
+      /* EDITAR: texto de la ubicación */
+      ubicacionTexto:
+        "Ubicación de demostración",
+
+      /* EDITAR:
+         Pegar el enlace completo de Google Maps.
+         Si se deja vacío, el botón se oculta automáticamente. */
+      mapsUrl:
+        "",
+
+      /* EDITAR:
+         Número con código de país, SOLO números.
+         México ejemplo: 5214441234567
+         Si se deja vacío, el botón de WhatsApp se oculta. */
+      whatsappNumero:
+        "",
+
+      /* EDITAR: mensaje inicial para pedidos */
+      mensajeWhatsApp:
+        "Hola, quiero hacer un pedido para llevar.",
+
+      /* EDITAR: texto del pie de página */
+      footer:
+        "Menú gastronómico interactivo · 3D + AR",
+
+      /* EDITAR: colores de marca */
+      colores: {
+        fondo:
+          "#F4EFE7",
+
+        tarjeta:
+          "#FFFDF9",
+
+        texto:
+          "#27221E",
+
+        acento:
+          "#A44F32",
+
+        acentoOscuro:
+          "#73331F"
+      }
+
+    },
+
+
+    /* =================================================== */
+    /* 2. CATEGORÍAS                                       */
+    /* =================================================== */
+
+    /* EDITAR:
+       Agregar o quitar categorías.
+       "Todos" debe mantenerse como primera categoría. */
+
+    categorias: [
+      "Todos",
+      "Fuertes",
+      "Asiáticos",
+      "Postres",
+      "Bebidas"
+    ],
+
+
+    /* =================================================== */
+    /* 3. PLATILLOS                                        */
+    /* =================================================== */
+
+    /* COPIAR UN BLOQUE { ... } PARA AGREGAR MÁS PLATILLOS.
+       IMPORTANTE:
+       categoria debe coincidir EXACTAMENTE con una categoría
+       escrita arriba. */
+
+    platillos: [
+
+      {
+        /* EDITAR */
+        id:
+          "burger",
+
+        categoria:
+          "Fuertes",
+
+        nombre:
+          "Burger de la Casa",
+
+        precio:
+          "$165",
+
+        descripcion:
+          "Hamburguesa de res de estilo clásico con queso, vegetales frescos y acompañamiento.",
+
+        ingredientes:
+          "Carne de res, pan, queso, lechuga, jitomate, cebolla y guarnición.",
+
+        alergenos:
+          "Gluten y lácteos.",
+
+        porcion:
+          "1 pieza",
+
+        picante:
+          "Sin picante",
+
+        dieta:
+          "Omnívora",
+
+        /* Ruta exacta del GLB */
+        modelo:
+          "models/menu/burguer.glb",
+
+        /* Ruta exacta de la fotografía */
+        imagen:
+          "images/menu/burguer.jpg",
+
+        badges:
+          [
+            "Popular",
+            "3D · AR"
+          ]
+      },
+
+
+      {
+        id:
+          "energy",
+
+        categoria:
+          "Bebidas",
+
+        nombre:
+          "Energy Drink",
+
+        precio:
+          "$55",
+
+        descripcion:
+          "Bebida energética servida fría para acompañar tu elección.",
+
+        ingredientes:
+          "Bebida energética.",
+
+        alergenos:
+          "Consultar etiqueta del producto.",
+
+        porcion:
+          "1 unidad",
+
+        picante:
+          "No aplica",
+
+        dieta:
+          "Bebida",
+
+        modelo:
+          "models/menu/energy_drink.glb",
+
+        imagen:
+          "images/menu/energy_drink.jpg",
+
+        badges:
+          [
+            "Bebida",
+            "3D · AR"
+          ]
+      },
+
+
+      {
+        id:
+          "curry",
+
+        categoria:
+          "Asiáticos",
+
+        nombre:
+          "Curry Noodles",
+
+        precio:
+          "$125",
+
+        descripcion:
+          "Fideos calientes con notas de curry y especias aromáticas.",
+
+        ingredientes:
+          "Fideos, caldo de curry, especias y vegetales.",
+
+        alergenos:
+          "Gluten y soya.",
+
+        porcion:
+          "1 tazón",
+
+        picante:
+          "Medio",
+
+        dieta:
+          "Vegetariana",
+
+        modelo:
+          "models/menu/curry.glb",
+
+        imagen:
+          "images/menu/curry.jpg",
+
+        badges:
+          [
+            "Especiado",
+            "3D · AR"
+          ]
+      },
+
+
+      {
+        id:
+          "fruit",
+
+        categoria:
+          "Postres",
+
+        nombre:
+          "Fruit Cocktail",
+
+        precio:
+          "$85",
+
+        descripcion:
+          "Selección fresca y colorida de frutas servidas en una presentación ligera.",
+
+        ingredientes:
+          "Frutas variadas de temporada.",
+
+        alergenos:
+          "Sin alérgenos declarados.",
+
+        porcion:
+          "1 copa",
+
+        picante:
+          "Sin picante",
+
+        dieta:
+          "Vegana",
+
+        modelo:
+          "models/menu/fruit.glb",
+
+        imagen:
+          "images/menu/fruit.jpg",
+
+        badges:
+          [
+            "Fresco",
+            "Vegano",
+            "3D · AR"
+          ]
+      },
+
+
+      {
+        id:
+          "ramen",
+
+        categoria:
+          "Asiáticos",
+
+        nombre:
+          "Spicy Ramen",
+
+        precio:
+          "$185",
+
+        descripcion:
+          "Ramen de caldo intenso y especiado para quienes disfrutan sabores con carácter.",
+
+        ingredientes:
+          "Fideos, caldo picante, vegetales, huevo, proteína y condimentos.",
+
+        alergenos:
+          "Gluten, huevo y soya.",
+
+        porcion:
+          "1 tazón",
+
+        picante:
+          "Alto 🌶",
+
+        dieta:
+          "Omnívora",
+
+        modelo:
+          "models/menu/ramen_web.glb",
+
+        imagen:
+          "images/menu/ramen.jpg",
+
+        badges:
+          [
+            "Picante",
+            "3D · AR"
+          ]
+      },
+
+
+      {
+        id:
+          "vietnam",
+
+        categoria:
+          "Asiáticos",
+
+        nombre:
+          "Vietnamese Food",
+
+        precio:
+          "$175",
+
+        descripcion:
+          "Platillo inspirado en la cocina vietnamita con sabores frescos y aromáticos.",
+
+        ingredientes:
+          "Proteína, vegetales, hierbas frescas, salsa y acompañamiento.",
+
+        alergenos:
+          "Puede contener soya y gluten.",
+
+        porcion:
+          "1 plato",
+
+        picante:
+          "Bajo",
+
+        dieta:
+          "Omnívora",
+
+        modelo:
+          "models/menu/viet_food_web.glb",
+
+        imagen:
+          "images/menu/viet_food.jpg",
+
+        badges:
+          [
+            "Recomendado",
+            "3D · AR"
+          ]
+      }
+
+    ]
+
+  };
+
+
+  /* ===================================================== */
+  /* FIN DE LA ZONA EDITABLE                              */
+  /* NO ES NECESARIO MODIFICAR NADA A PARTIR DE AQUÍ     */
+  /* ===================================================== */
+
+
+  const restaurante =
+    CONFIG.restaurante;
+
+  const platillos =
+    CONFIG.platillos;
+
+  const categorias =
+    CONFIG.categorias;
+
+
+  /* ===================================================== */
+  /* APLICAR IDENTIDAD                                     */
+  /* ===================================================== */
+
+  document.documentElement.style.setProperty(
+    "--fondo",
+    restaurante.colores.fondo
+  );
+
+  document.documentElement.style.setProperty(
+    "--tarjeta",
+    restaurante.colores.tarjeta
+  );
+
+  document.documentElement.style.setProperty(
+    "--texto",
+    restaurante.colores.texto
+  );
+
+  document.documentElement.style.setProperty(
+    "--acento",
+    restaurante.colores.acento
+  );
+
+  document.documentElement.style.setProperty(
+    "--acento-oscuro",
+    restaurante.colores.acentoOscuro
+  );
+
+
+  /* ===================================================== */
+  /* ESTADO                                                */
+  /* ===================================================== */
+
+  let categoriaActual =
+    "Todos";
+
+  let platilloActual =
+    platillos[0] || null;
+
+  let visorARActivo =
+    null;
+
+  let toastTimer =
+    null;
+
+
+  /* ===================================================== */
+  /* ELEMENTOS                                             */
+  /* ===================================================== */
+
+  const heroNombre =
+    document.getElementById(
+      "heroNombre"
+    );
+
+  const heroSubtitulo =
+    document.getElementById(
+      "heroSubtitulo"
+    );
+
+  const navInicio =
+    document.getElementById(
+      "navInicio"
+    );
+
+  const navMenu =
+    document.getElementById(
+      "navMenu"
+    );
+
+  const vistaInicio =
+    document.getElementById(
+      "vistaInicio"
+    );
+
+  const vistaMenu =
+    document.getElementById(
+      "vistaMenu"
+    );
+
+  const inicioTitulo =
+    document.getElementById(
+      "inicioTitulo"
+    );
+
+  const inicioHistoria =
+    document.getElementById(
+      "inicioHistoria"
+    );
+
+  const inicioContactoTexto =
+    document.getElementById(
+      "inicioContactoTexto"
+    );
+
+  const imagenRestaurante =
+    document.getElementById(
+      "imagenRestaurante"
+    );
+
+  const inicioImagenFallback =
+    document.getElementById(
+      "inicioImagenFallback"
+    );
+
+  const textoUbicacion =
+    document.getElementById(
+      "textoUbicacion"
+    );
+
+  const bloqueUbicacion =
+    document.getElementById(
+      "bloqueUbicacion"
+    );
+
+  const botonMaps =
+    document.getElementById(
+      "botonMaps"
+    );
+
+  const whatsappFlotante =
+    document.getElementById(
+      "whatsappFlotante"
+    );
+
+  const footerTexto =
+    document.getElementById(
+      "footerTexto"
+    );
+
+  const categoriasHTML =
+    document.getElementById(
+      "categorias"
+    );
+
+  const listaHTML =
+    document.getElementById(
+      "listaPlatillos"
+    );
+
+  const viewerHost =
+    document.getElementById(
+      "viewerHost"
+    );
+
+  const estadoModelo =
+    document.getElementById(
+      "estadoModelo"
+    );
+
+  const detalleNombre =
+    document.getElementById(
+      "detalleNombre"
+    );
+
+  const detallePrecio =
+    document.getElementById(
+      "detallePrecio"
+    );
+
+  const detalleDescripcion =
+    document.getElementById(
+      "detalleDescripcion"
+    );
+
+  const detalleIngredientes =
+    document.getElementById(
+      "detalleIngredientes"
+    );
+
+  const detalleAlergenos =
+    document.getElementById(
+      "detalleAlergenos"
+    );
+
+  const detallePorcion =
+    document.getElementById(
+      "detallePorcion"
+    );
+
+  const detallePicante =
+    document.getElementById(
+      "detallePicante"
+    );
+
+  const detalleDieta =
+    document.getElementById(
+      "detalleDieta"
+    );
+
+  const detalleBadges =
+    document.getElementById(
+      "detalleBadges"
+    );
+
+  const abrirAyudaAR =
+    document.getElementById(
+      "abrirAyudaAR"
+    );
+
+  const modalAR =
+    document.getElementById(
+      "modalAR"
+    );
+
+  const confirmarAR =
+    document.getElementById(
+      "confirmarAR"
+    );
+
+  const cancelarAR =
+    document.getElementById(
+      "cancelarAR"
+    );
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  /* ===================================================== */
+  /* RELLENAR DATOS DEL RESTAURANTE                       */
+  /* ===================================================== */
+
+  heroNombre.textContent =
+    restaurante.nombre;
+
+  heroSubtitulo.textContent =
+    restaurante.subtitulo;
+
+  inicioTitulo.textContent =
+    restaurante.tituloHistoria;
+
+  inicioHistoria.textContent =
+    restaurante.historia;
+
+  inicioContactoTexto.textContent =
+    restaurante.contactoTexto;
+
+  textoUbicacion.textContent =
+    restaurante.ubicacionTexto;
+
+  footerTexto.textContent =
+    restaurante.footer;
+
+  document.title =
+    restaurante.nombre +
+    " | Menú 3D + AR";
+
+
+  /* ===================================================== */
+  /* FOTO DEL RESTAURANTE                                 */
+  /* ===================================================== */
+
+  imagenRestaurante.src =
+    new URL(
+      restaurante.imagenRestaurante,
+      document.baseURI
+    ).href;
+
+  imagenRestaurante.alt =
+    "Fotografía de " +
+    restaurante.nombre;
+
+  imagenRestaurante.addEventListener(
+    "load",
+    () => {
+      inicioImagenFallback.style.display =
+        "none";
+    }
+  );
+
+  imagenRestaurante.addEventListener(
+    "error",
+    () => {
+      imagenRestaurante.style.display =
+        "none";
+
+      inicioImagenFallback.style.display =
+        "flex";
+    }
+  );
+
+
+  /* ===================================================== */
+  /* MAPS Y WHATSAPP                                      */
+  /* ===================================================== */
+
+  if(
+    !restaurante.mapsUrl ||
+    restaurante.mapsUrl.trim() === ""
+  ){
+    botonMaps.style.display =
+      "none";
+
+    bloqueUbicacion.style.display =
+      restaurante.ubicacionTexto
+        ? "block"
+        : "none";
+  }
+
+
+  if(
+    !restaurante.whatsappNumero ||
+    restaurante.whatsappNumero.trim() === ""
+  ){
+    whatsappFlotante.style.display =
+      "none";
+  }
+
+
+  function abrirMaps(){
+
+    if(
+      !restaurante.mapsUrl
+    ){
+      return;
+    }
+
+    window.open(
+      restaurante.mapsUrl,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
+
+  function abrirWhatsApp(){
+
+    const numero =
+      restaurante
+        .whatsappNumero
+        .replace(/[^\d]/g,"");
+
+    if(!numero){
+      return;
+    }
+
+    const complemento =
+      platilloActual
+        ? " Me interesa " +
+          platilloActual.nombre +
+          "."
+        : "";
+
+    const mensaje =
+      restaurante.mensajeWhatsApp +
+      complemento;
+
+    const url =
+      "https://wa.me/" +
+      numero +
+      "?text=" +
+      encodeURIComponent(
+        mensaje
+      );
+
+    window.open(
+      url,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
+
+  botonMaps.addEventListener(
+    "click",
+    abrirMaps
+  );
+
+
+  whatsappFlotante.addEventListener(
+    "click",
+    abrirWhatsApp
+  );
+
+
+  /* ===================================================== */
+  /* NAVEGACIÓN                                           */
+  /* ===================================================== */
+
+  function mostrarVista(
+    nombre,
+    actualizarHash = true
+  ){
+
+    const esInicio =
+      nombre === "inicio";
+
+    vistaInicio.classList.toggle(
+      "activa",
+      esInicio
+    );
+
+    vistaMenu.classList.toggle(
+      "activa",
+      !esInicio
+    );
+
+    navInicio.classList.toggle(
+      "activo",
+      esInicio
+    );
+
+    navMenu.classList.toggle(
+      "activo",
+      !esInicio
+    );
+
+    if(actualizarHash){
+
+      history.replaceState(
+        null,
+        "",
+        esInicio
+          ? "#inicio"
+          : "#menu"
+      );
+    }
+
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
+  }
+
+
+  navInicio.addEventListener(
+    "click",
+    () => {
+      mostrarVista(
+        "inicio"
+      );
+    }
+  );
+
+
+  navMenu.addEventListener(
+    "click",
+    () => {
+      mostrarVista(
+        "menu"
+      );
+    }
+  );
+
+
+  /* ===================================================== */
+  /* CATEGORÍAS                                           */
+  /* ===================================================== */
+
+  function obtenerPlatillos(){
+
+    if(
+      categoriaActual ===
+      "Todos"
+    ){
+      return platillos;
+    }
+
+    return platillos.filter(
+      item =>
+        item.categoria ===
+        categoriaActual
+    );
+  }
+
+
+  function crearCategorias(){
+
+    categoriasHTML.innerHTML =
+      "";
+
+    categorias.forEach(
+      categoria => {
+
+        const boton =
+          document.createElement(
+            "button"
+          );
+
+        boton.type =
+          "button";
+
+        boton.className =
+          "categoria";
+
+        boton.textContent =
+          categoria;
+
+        if(
+          categoria ===
+          categoriaActual
+        ){
+          boton.classList.add(
+            "activa"
+          );
+        }
+
+        boton.addEventListener(
+          "click",
+          () => {
+
+            categoriaActual =
+              categoria;
+
+            const visibles =
+              obtenerPlatillos();
+
+            if(
+              visibles.length > 0 &&
+              (
+                !platilloActual ||
+                !visibles.some(
+                  item =>
+                    item.id ===
+                    platilloActual.id
+                )
+              )
+            ){
+              platilloActual =
+                visibles[0];
+
+              cargarPlatillo(
+                platilloActual
+              );
+            }
+
+            crearCategorias();
+            crearLista();
+          }
+        );
+
+        categoriasHTML.appendChild(
+          boton
+        );
+      }
+    );
+  }
+
+
+  /* ===================================================== */
+  /* TARJETAS                                             */
+  /* ===================================================== */
+
+  function crearLista(){
+
+    const visibles =
+      obtenerPlatillos();
+
+    listaHTML.innerHTML =
+      "";
+
+    visibles.forEach(
+      item => {
+
+        const boton =
+          document.createElement(
+            "button"
+          );
+
+        boton.type =
+          "button";
+
+        boton.className =
+          "platillo";
+
+        if(
+          platilloActual &&
+          item.id ===
+          platilloActual.id
+        ){
+          boton.classList.add(
+            "activo"
+          );
+        }
+
+        const visual =
+          document.createElement(
+            "div"
+          );
+
+        visual.className =
+          "platillo-visual";
+
+
+        const fallback =
+          document.createElement(
+            "div"
+          );
+
+        fallback.className =
+          "foto-fallback";
+
+        fallback.textContent =
+          "Fotografía de " +
+          item.nombre;
+
+
+        const imagen =
+          document.createElement(
+            "img"
+          );
+
+        imagen.src =
+          new URL(
+            item.imagen,
+            document.baseURI
+          ).href;
+
+        imagen.alt =
+          "Fotografía de " +
+          item.nombre;
+
+        imagen.loading =
+          "lazy";
+
+
+        imagen.addEventListener(
+          "load",
+          () => {
+
+            fallback.style.display =
+              "none";
+          }
+        );
+
+
+        imagen.addEventListener(
+          "error",
+          () => {
+
+            imagen.style.display =
+              "none";
+
+            fallback.style.display =
+              "flex";
+          }
+        );
+
+
+        const distintivo =
+          document.createElement(
+            "span"
+          );
+
+        distintivo.className =
+          "distintivo";
+
+        distintivo.textContent =
+          "3D · AR";
+
+
+        visual.appendChild(
+          fallback
+        );
+
+        visual.appendChild(
+          imagen
+        );
+
+        visual.appendChild(
+          distintivo
+        );
+
+
+        const info =
+          document.createElement(
+            "div"
+          );
+
+        info.className =
+          "platillo-info";
+
+        info.innerHTML =
+          `
+          <div class="fila-nombre">
+
+            <h3 class="platillo-nombre">
+              ${item.nombre}
+            </h3>
+
+            <span class="precio">
+              ${item.precio}
+            </span>
+
+          </div>
+
+          <p class="platillo-descripcion">
+            ${item.descripcion}
+          </p>
+          `;
+
+
+        boton.appendChild(
+          visual
+        );
+
+        boton.appendChild(
+          info
+        );
+
+
+        boton.addEventListener(
+          "click",
+          () => {
+
+            platilloActual =
+              item;
+
+            cargarPlatillo(
+              item
+            );
+
+            crearLista();
+
+            if(
+              window.innerWidth <=
+              960
+            ){
+              document
+                .getElementById(
+                  "detallePlatillo"
+                )
+                .scrollIntoView({
+                  behavior:"smooth",
+                  block:"start"
+                });
+            }
+          }
+        );
+
+
+        listaHTML.appendChild(
+          boton
+        );
+      }
+    );
+  }
+
+
+  /* ===================================================== */
+  /* MODEL VIEWER                                         */
+  /* ===================================================== */
+
+  function crearVisor(
+    item
+  ){
+
+    viewerHost.innerHTML =
+      "";
+
+    abrirAyudaAR.disabled =
+      true;
+
+    visorARActivo =
+      null;
+
+    estadoModelo.classList.remove(
+      "error"
+    );
+
+    estadoModelo.style.display =
+      "block";
+
+    estadoModelo.textContent =
+      "Cargando modelo 3D...";
+
+
+    const urlModelo =
+      new URL(
+        item.modelo,
+        document.baseURI
+      ).href;
+
+
+    const visor =
+      document.createElement(
+        "model-viewer"
+      );
+
+    visor.src =
+      urlModelo;
+
+    visor.alt =
+      "Modelo 3D de " +
+      item.nombre;
+
+
+    /* VISOR WEB:
+       1 dedo gira
+       2 dedos mueve */
+    visor.setAttribute(
+      "camera-controls",
+      ""
+    );
+
+    visor.setAttribute(
+      "touch-action",
+      "pan-y"
+    );
+
+    visor.setAttribute(
+      "auto-rotate",
+      ""
+    );
+
+    visor.setAttribute(
+      "shadow-intensity",
+      "1"
+    );
+
+    visor.setAttribute(
+      "shadow-softness",
+      "0.9"
+    );
+
+    visor.setAttribute(
+      "environment-image",
+      "neutral"
+    );
+
+    visor.setAttribute(
+      "exposure",
+      "1"
+    );
+
+    visor.setAttribute(
+      "loading",
+      "eager"
+    );
+
+
+    /* AR */
+    visor.setAttribute(
+      "ar",
+      ""
+    );
+
+    visor.setAttribute(
+      "ar-modes",
+      "webxr scene-viewer quick-look"
+    );
+
+    visor.setAttribute(
+      "ar-placement",
+      "floor"
+    );
+
+    visor.setAttribute(
+      "ar-scale",
+      "fixed"
+    );
+
+
+    const botonARInterno =
+      document.createElement(
+        "button"
+      );
+
+    botonARInterno.type =
+      "button";
+
+    botonARInterno.slot =
+      "ar-button";
+
+    botonARInterno.hidden =
+      true;
+
+    botonARInterno.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    visor.appendChild(
+      botonARInterno
+    );
+
+
+    visor.addEventListener(
+      "load",
+      () => {
+
+        estadoModelo.style.display =
+          "none";
+
+        visorARActivo =
+          visor;
+
+        abrirAyudaAR.disabled =
+          false;
+
+        abrirAyudaAR.textContent =
+          "VER EN TU MESA";
+      }
+    );
+
+
+    visor.addEventListener(
+      "error",
+      () => {
+
+        estadoModelo.style.display =
+          "block";
+
+        estadoModelo.classList.add(
+          "error"
+        );
+
+        estadoModelo.textContent =
+          "No se pudo cargar el modelo 3D: " +
+          item.modelo;
+
+        abrirAyudaAR.disabled =
+          true;
+
+        visorARActivo =
+          null;
+      }
+    );
+
+
+    viewerHost.appendChild(
+      visor
+    );
+  }
+
+
+  /* ===================================================== */
+  /* FICHA                                                */
+  /* ===================================================== */
+
+  function cargarPlatillo(
+    item
+  ){
+
+    detalleNombre.textContent =
+      item.nombre;
+
+    detallePrecio.textContent =
+      item.precio;
+
+    detalleDescripcion.textContent =
+      item.descripcion;
+
+    detalleIngredientes.textContent =
+      item.ingredientes;
+
+    detalleAlergenos.textContent =
+      item.alergenos;
+
+    detallePorcion.textContent =
+      item.porcion;
+
+    detallePicante.textContent =
+      item.picante;
+
+    detalleDieta.textContent =
+      item.dieta;
+
+
+    detalleBadges.innerHTML =
+      "";
+
+
+    item.badges.forEach(
+      texto => {
+
+        const badge =
+          document.createElement(
+            "span"
+          );
+
+        badge.className =
+          "badge";
+
+        badge.textContent =
+          texto;
+
+        detalleBadges.appendChild(
+          badge
+        );
+      }
+    );
+
+
+    crearVisor(
+      item
+    );
+
+
+    document.title =
+      restaurante.nombre +
+      " | " +
+      item.nombre;
+  }
+
+
+  /* ===================================================== */
+  /* GUÍA AR                                              */
+  /* ===================================================== */
+
+  function abrirGuiaAR(){
+
+    if(
+      !visorARActivo
+    ){
+      return;
+    }
+
+    modalAR.classList.add(
+      "abierto"
+    );
+
+    modalAR.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    confirmarAR.focus();
+  }
+
+
+  function cerrarGuiaAR(){
+
+    modalAR.classList.remove(
+      "abierto"
+    );
+
+    modalAR.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    abrirAyudaAR.focus();
+  }
+
+
+  abrirAyudaAR.addEventListener(
+    "click",
+    abrirGuiaAR
+  );
+
+
+  cancelarAR.addEventListener(
+    "click",
+    cerrarGuiaAR
+  );
+
+
+  modalAR.addEventListener(
+    "click",
+    event => {
+
+      if(
+        event.target ===
+        modalAR
+      ){
+        cerrarGuiaAR();
+      }
+    }
+  );
+
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      if(
+        event.key === "Escape" &&
+        modalAR.classList.contains(
+          "abierto"
+        )
+      ){
+        cerrarGuiaAR();
+      }
+    }
+  );
+
+
+  confirmarAR.addEventListener(
+    "click",
+    () => {
+
+      if(
+        !visorARActivo
+      ){
+        return;
+      }
+
+      modalAR.classList.remove(
+        "abierto"
+      );
+
+      modalAR.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      try{
+
+        const resultado =
+          visorARActivo.activateAR();
+
+        if(
+          resultado &&
+          typeof resultado.catch ===
+          "function"
+        ){
+          resultado.catch(
+            () => {
+
+              mostrarToast(
+                "No fue posible abrir la realidad aumentada en este dispositivo."
+              );
+            }
+          );
+        }
+      }
+      catch(error){
+
+        mostrarToast(
+          "No fue posible abrir la realidad aumentada en este dispositivo."
+        );
+      }
+    }
+  );
+
+
+  /* ===================================================== */
+  /* TOAST                                                */
+  /* ===================================================== */
+
+  function mostrarToast(
+    mensaje
+  ){
+
+    if(
+      toastTimer
+    ){
+      clearTimeout(
+        toastTimer
+      );
+    }
+
+    toast.textContent =
+      mensaje;
+
+    toast.classList.add(
+      "visible"
+    );
+
+    toastTimer =
+      setTimeout(
+        () => {
+
+          toast.classList.remove(
+            "visible"
+          );
+
+        },
+        3300
+      );
+  }
+
+
+  /* ===================================================== */
+  /* RUTA INICIAL                                         */
+  /* ===================================================== */
+
+  function iniciarRuta(){
+
+    const hash =
+      window.location.hash
+        .toLowerCase();
+
+    if(
+      hash === "#inicio"
+    ){
+      mostrarVista(
+        "inicio",
+        false
+      );
+    }
+    else{
+      mostrarVista(
+        "menu",
+        false
+      );
+    }
+  }
+
+
+  window.addEventListener(
+    "hashchange",
+    iniciarRuta
+  );
+
+
+  /* ===================================================== */
+  /* INICIAR                                              */
+  /* ===================================================== */
+
+  crearCategorias();
+
+  crearLista();
+
+  if(
+    platilloActual
+  ){
+    cargarPlatillo(
+      platilloActual
+    );
+  }
+
+  iniciarRuta();
+
+</script>
+
+</body>
+</html>
